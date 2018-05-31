@@ -3,7 +3,7 @@ defmodule NervesHub.Client.MixProject do
 
   def project do
     [
-      app: :nerveshub_client,
+      app: :nerves_hub_client,
       version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
