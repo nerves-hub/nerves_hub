@@ -2,7 +2,7 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :nerveshub_client, NervesHub.Client.Socket,
+config :nerves_hub_client, NervesHub.Client.Socket,
   url: "wss://127.0.0.1:4001/socket/websocket",
   serializer: Jason,
   ssl_verify: :verify_peer,
