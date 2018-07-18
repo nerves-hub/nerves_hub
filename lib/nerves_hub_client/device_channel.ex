@@ -8,11 +8,10 @@ defmodule NervesHubClient.DeviceChannel do
   end
 
   def handle_reply(
-        {:ok, :join, %{"response" => %{"serial" => serial}, "status" => "ok"}, _},
+        {:ok, :join, %{"response" => response, "status" => "ok"}, _},
         state
       ) do
-    state = Map.put(state, :serial, serial)
-    Logger.info("Joined channel as #{serial}")
+    Logger.info("Joined channel")
     {:noreply, state}
   end
 
