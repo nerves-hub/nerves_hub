@@ -1,4 +1,4 @@
-defmodule NervesHub.Client.DeviceChannel do
+defmodule NervesHubClient.DeviceChannel do
   use PhoenixChannelClient
   require Logger
 

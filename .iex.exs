@@ -1,1 +1,1 @@
-alias NervesHub.Client.DeviceChannel
+alias NervesHubClient.DeviceChannel

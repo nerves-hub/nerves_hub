@@ -1,4 +1,4 @@
-defmodule NervesHub.ClientTest do
+defmodule NervesHubClientTest do
   use ExUnit.Case
-  doctest NervesHub.Client
+  doctest NervesHubClient
 end

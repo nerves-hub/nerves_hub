@@ -1,4 +1,4 @@
-defmodule NervesHub.Client.MixProject do
+defmodule NervesHubClient.MixProject do
   use Mix.Project
 
   def project do
@@ -15,7 +15,7 @@ defmodule NervesHub.Client.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {NervesHub.Client.Application, []}
+      mod: {NervesHubClient.Application, []}
     ]
   end
 
