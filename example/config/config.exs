@@ -38,7 +38,7 @@ key_mgmt = System.get_env("NERVES_NETWORK_KEY_MGMT") || "WPA-PSK"
 config :nerves_network, :default,
   wlan0: [ssid: network_ssid, psk: network_psk, key_mgmt: key_mgmt]
 
-config :nerves_hub_client, NervesHubClient.Socket,
+config :nerves_hub, NervesHub.Socket,
   url: "wss://192.168.1.103:4443/socket/websocket",
   serializer: Jason,
   ssl_verify: :verify_peer,

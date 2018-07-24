@@ -1,9 +1,9 @@
-defmodule NervesHubClient.MixProject do
+defmodule NervesHub.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :nerves_hub_client,
+      app: :nerves_hub,
       version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
@@ -15,7 +15,7 @@ defmodule NervesHubClient.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {NervesHubClient.Application, []}
+      mod: {NervesHub.Application, []}
     ]
   end
 

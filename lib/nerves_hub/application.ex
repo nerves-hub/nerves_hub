@@ -1,4 +1,4 @@
-defmodule NervesHubClient.Application do
+defmodule NervesHub.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -11,7 +11,7 @@ defmodule NervesHubClient.Application do
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: NervesHubClient.Supervisor]
+    opts = [strategy: :one_for_one, name: NervesHub.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

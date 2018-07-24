@@ -49,7 +49,7 @@ defmodule Example.MixProject do
     [
       {:nerves_runtime, "~> 0.4"},
       {:nerves_init_gadget, "~> 0.1"},
-      {:nerves_hub_client, path: "../"}
+      {:nerves_hub, path: "../"}
     ] ++ system(target)
   end
 
