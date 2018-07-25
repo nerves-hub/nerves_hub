@@ -24,7 +24,8 @@ defmodule NervesHub.MixProject do
     [
       {:phoenix_channel_client, github: "mobileoverlord/phoenix_channel_client"},
       {:websocket_client, "~> 1.3"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:hackney, "~> 1.9"}
     ]
   end
 end

@@ -10,7 +10,17 @@ config :nerves_hub, NervesHub.Socket,
     certfile: Path.expand("../test/fixtures/certs/hub-1234.pem") |> to_charlist,
     keyfile: Path.expand("../test/fixtures/certs/hub-1234-key.pem") |> to_charlist,
     cacertfile: Path.expand("../test/fixtures/certs/ca.pem") |> to_charlist,
-    server_name_indication: 'nerveshub'
+    server_name_indication: 'device.nerves-hub.org'
+  ]
+
+config :nerves_hub, NervesHub.API,
+  host: "0.0.0.0",
+  port: 4002,
+  ssl: [
+    keyfile: Path.expand("test/fixtures/ssl/user-key.pem"),
+    certfile: Path.expand("test/fixtures/ssl/user.pem"),
+    cacertfile: Path.expand("test/fixtures/ssl/ca.pem"),
+    server_name_indication: 'api.nerves-hub.org'
   ]
 
 config :logger, level: :info
