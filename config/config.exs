@@ -13,14 +13,9 @@ config :nerves_hub, NervesHub.Socket,
     server_name_indication: 'device.nerves-hub.org'
   ]
 
-config :nerves_hub, NervesHub.API,
-  host: "0.0.0.0",
-  port: 4002,
-  ssl: [
-    keyfile: Path.expand("test/fixtures/ssl/user-key.pem"),
-    certfile: Path.expand("test/fixtures/ssl/user.pem"),
-    cacertfile: Path.expand("test/fixtures/ssl/ca.pem"),
-    server_name_indication: 'api.nerves-hub.org'
-  ]
-
 config :logger, level: :info
+
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "#{Mix.env}.exs"
