@@ -18,7 +18,7 @@ defmodule Mix.Tasks.NervesHub.Deployment do
   ## update
 
   Update values on a deployment. 
-  
+
   ### Examples
 
   Update active firmware version
@@ -45,10 +45,10 @@ defmodule Mix.Tasks.NervesHub.Deployment do
 
   def run(args) do
     Application.ensure_all_started(:nerves_hub)
-  
+
     {opts, args} = OptionParser.parse!(args, strict: @switches)
     product = opts[:product] || default_product()
-    
+
     case args do
       ["list"] ->
         list(product)
@@ -65,19 +65,25 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     case API.Deployment.list(product) do
       {:ok, %{"data" => []}} ->
         Shell.info("No deployments have been created for product: #{product}")
+
       {:ok, %{"data" => deployments}} ->
         Shell.info("")
         Shell.info("Deployments:")
-        Enum.each(deployments, fn(params) -> 
-          Shell.info("------------") 
+
+        Enum.each(deployments, fn params ->
+          Shell.info("------------")
+
           render_deployment(params)
           |> String.trim_trailing()
           |> Shell.info()
-          Shell.info("------------") 
+
+          Shell.info("------------")
         end)
+
         Shell.info("")
+
       error ->
-        Shell.info("Failed to list deployments \nreason: #{inspect error}")
+        Shell.info("Failed to list deployments \nreason: #{inspect(error)}")
     end
   end
 
@@ -86,13 +92,15 @@ defmodule Mix.Tasks.NervesHub.Deployment do
       {:ok, %{"data" => deployment}} ->
         Shell.info("")
         Shell.info("Deployment Updated:")
+
         render_deployment(deployment)
         |> String.trim_trailing()
         |> Shell.info()
+
         Shell.info("")
 
-        error ->
-          Shell.info("Failed to update deployment \nreason: #{inspect error}")
+      error ->
+        Shell.info("Failed to update deployment \nreason: #{inspect(error)}")
     end
   end
 
@@ -109,16 +117,16 @@ defmodule Mix.Tasks.NervesHub.Deployment do
     """
     conditions:
     """ <>
-    if Map.get(conditions, "version") != "" do
+      if Map.get(conditions, "version") != "" do
+        """
+            version: #{conditions["version"]}
+        """
+      else
+        ""
+      end <>
       """
-          version: #{conditions["version"]}
+          #{render_tags(conditions["tags"])}
       """
-    else
-      ""
-    end <>
-    """
-        #{render_tags(conditions["tags"])}
-    """
   end
 
   defp render_tags(tags) do
@@ -136,5 +144,4 @@ defmodule Mix.Tasks.NervesHub.Deployment do
       mix nerves_hub.deployment update [deployment_name] [key] [value]
     """)
   end
-
 end

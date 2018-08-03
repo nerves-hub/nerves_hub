@@ -17,8 +17,7 @@ defmodule NervesHub.Fwup do
     fwup = System.find_executable("fwup")
     devpath = Nerves.Runtime.KV.get("nerves_fw_devpath") || "/dev/mmcblk0"
     task = "upgrade"
-    args = ["--apply", "--no-unmount", "-d", devpath,
-              "--task", task]
+    args = ["--apply", "--no-unmount", "-d", devpath, "--task", task]
     fw_config = Application.get_env(:nerves_system_test, :firmware)
 
     args =
@@ -27,12 +26,13 @@ defmodule NervesHub.Fwup do
       else
         args
       end
-    port = Port.open({:spawn_executable, fwup},
-      [{:args, args},
-       :use_stdio,
-       :binary,
-       :exit_status
-      ])
+
+    port =
+      Port.open(
+        {:spawn_executable, fwup},
+        [{:args, args}, :use_stdio, :binary, :exit_status]
+      )
+
     {:ok, %{port: port, cm: cm}}
   end
 
@@ -45,8 +45,9 @@ defmodule NervesHub.Fwup do
     IO.write(:stderr, response)
     {:noreply, state}
   end
+
   def handle_info({_port, {:exit_status, status}}, state) do
-    Logger.configure level: :debug
+    Logger.configure(level: :debug)
     Logger.info("fwup exited with status #{status}")
     send(state.cm, {:fwup, :done})
     {:noreply, state}

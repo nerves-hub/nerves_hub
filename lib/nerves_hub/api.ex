@@ -18,17 +18,20 @@ defmodule NervesHub.API do
   end
 
   def request(_verb, _path, _body_or_params \\ "")
+
   def request(:get, path, params) do
     url = url(path) <> "?" <> URI.encode_query(params)
+
     :hackney.request(:get, url, headers(), "", opts())
     |> resp()
   end
+
   def request(verb, path, params) when is_map(params) do
     with {:ok, body} <- Jason.encode(params) do
       request(verb, path, body)
     end
   end
-  
+
   def request(verb, path, body) do
     :hackney.request(verb, url(path), headers(), body, opts())
     |> resp()
@@ -39,12 +42,13 @@ defmodule NervesHub.API do
     |> resp()
   end
 
-  defp resp({:ok, status_code, _headers, client_ref}) when status_code >= 200 and status_code < 300 do
+  defp resp({:ok, status_code, _headers, client_ref})
+       when status_code >= 200 and status_code < 300 do
     case :hackney.body(client_ref) do
-      {:ok, ""} -> 
+      {:ok, ""} ->
         {:ok, ""}
-        
-      {:ok, body} ->        
+
+      {:ok, body} ->
         Jason.decode(body)
 
       error ->

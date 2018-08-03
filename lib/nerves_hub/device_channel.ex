@@ -17,7 +17,7 @@ defmodule NervesHub.DeviceChannel do
         {:ok, :join, %{"response" => response, "status" => "ok"}, _},
         state
       ) do
-    Logger.info("Joined channel: #{inspect response}")
+    Logger.info("Joined channel: #{inspect(response)}")
     {:noreply, update_firmware(response, state)}
   end
 
@@ -32,7 +32,7 @@ defmodule NervesHub.DeviceChannel do
   end
 
   def handle_info({:fwup, :done}, state) do
-    Logger.debug "FWUP Finished"
+    Logger.debug("FWUP Finished")
     Nerves.Runtime.reboot()
     {:noreply, state}
   end

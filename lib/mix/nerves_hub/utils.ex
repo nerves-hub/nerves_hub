@@ -1,5 +1,4 @@
 defmodule Mix.NervesHub.Utils do
-  
   def default_product do
     config()[:app]
   end
@@ -8,20 +7,20 @@ defmodule Mix.NervesHub.Utils do
     images_path =
       (config()[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
       |> Path.expand()
-      
-      filename = "#{default_product()}.fw"
-      Path.join(images_path, filename)
+
+    filename = "#{default_product()}.fw"
+    Path.join(images_path, filename)
   end
 
   def metadata(firmware) do
     case System.cmd("fwup", ["-m", "-i", firmware]) do
       {metadata, 0} ->
-        metadata = 
+        metadata =
           metadata
           |> String.trim()
           |> String.split("\n")
           |> Enum.map(&String.split(&1, "=", parts: 2))
-          |> Enum.map(fn([k, v]) -> {String.trim(k, "meta-"), String.trim(v, "\"")} end)
+          |> Enum.map(fn [k, v] -> {String.trim(k, "meta-"), String.trim(v, "\"")} end)
           |> Enum.into(%{})
 
         {:ok, metadata}
@@ -52,6 +51,4 @@ defmodule Mix.NervesHub.Utils do
   defp config() do
     Mix.Project.config()
   end
-
 end
-

@@ -10,6 +10,7 @@ defmodule NervesHub.API.Deployment do
       product_name: product_name,
       deployment: params
     }
+
     API.request(:put, "deployments/#{deployment_name}", params)
   end
 end

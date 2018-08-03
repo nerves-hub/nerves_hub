@@ -67,11 +67,11 @@ defmodule Mix.Tasks.NervesHub.Firmware do
         firmware
         |> Path.expand()
         |> publish_confirm(opts)
-        
+
       ["delete", uuid] when is_binary(uuid) ->
         delete_confirm(uuid)
-      
-      _ -> 
+
+      _ ->
         render_help()
     end
   end
@@ -80,43 +80,51 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     case API.Firmware.list(product) do
       {:ok, %{"data" => []} = resp} ->
         Shell.info("No firmware has been published for product: #{product}")
+
       {:ok, %{"data" => firmwares} = resp} ->
         Shell.info("")
         Shell.info("Firmwares:")
-        Enum.each(firmwares, fn(metadata) ->  
-          Shell.info("------------") 
+
+        Enum.each(firmwares, fn metadata ->
+          Shell.info("------------")
+
           render_firmware(metadata)
           |> String.trim_trailing()
           |> Shell.info()
         end)
+
         Shell.info("")
+
       error ->
-        Shell.info("Failed to list firmware \nreason: #{inspect error}")
+        Shell.info("Failed to list firmware \nreason: #{inspect(error)}")
     end
   end
 
   defp publish_confirm(firmware, opts) do
     with true <- File.exists?(firmware),
-      {:ok, metadata} <- metadata(firmware) do
-        Shell.info("------------") 
-        render_firmware(metadata)
-        |> String.trim_trailing()
-        |> Shell.info()
+         {:ok, metadata} <- metadata(firmware) do
+      Shell.info("------------")
 
-      if Mix.shell.yes?("Publish Firmware?") do
+      render_firmware(metadata)
+      |> String.trim_trailing()
+      |> Shell.info()
+
+      if Mix.shell().yes?("Publish Firmware?") do
         publish(firmware, opts)
       end
     else
       false ->
         Shell.info("Cannot find firmware at #{firmware}")
+
       {:error, reason} ->
-        Shell.info("Unable to parse firmware metadata: #{inspect reason}")
+        Shell.info("Unable to parse firmware metadata: #{inspect(reason)}")
     end
   end
-  
+
   defp delete_confirm(uuid) do
     Shell.info("UUID: #{uuid}")
-    if Mix.shell.yes?("Delete Firmware?") do
+
+    if Mix.shell().yes?("Delete Firmware?") do
       delete(uuid)
     end
   end
@@ -125,15 +133,17 @@ defmodule Mix.Tasks.NervesHub.Firmware do
     case API.Firmware.create(firmware) do
       {:ok, %{"data" => %{} = firmware}} ->
         Shell.info("Firmware published successfully")
+
         Keyword.get_values(opts, :deploy)
         |> maybe_deploy(firmware)
+
       error ->
-        Shell.info("Failed to publish firmware \nreason: #{inspect error}")
+        Shell.info("Failed to publish firmware \nreason: #{inspect(error)}")
     end
   end
 
   defp delete(uuid) do
-    API.Firmware.delete(uuid) |> IO.inspect
+    API.Firmware.delete(uuid) |> IO.inspect()
     # case  do
     #   {:ok, %{"data" => %{} = firmware}} ->
     #     Shell.info("Firmware published successfully")
@@ -143,11 +153,17 @@ defmodule Mix.Tasks.NervesHub.Firmware do
   end
 
   defp maybe_deploy([], _), do: :ok
-    
+
   defp maybe_deploy(deployments, firmware) do
-    Enum.each(deployments, fn(deployment_name) ->
+    Enum.each(deployments, fn deployment_name ->
       Shell.info("Deploying firmware to #{deployment_name}")
-      Mix.Task.run("nerves_hub.deployment", ["update", deployment_name, "firmware", firmware["uuid"]])
+
+      Mix.Task.run("nerves_hub.deployment", [
+        "update",
+        deployment_name,
+        "firmware",
+        firmware["uuid"]
+      ])
     end)
   end
 
@@ -172,5 +188,4 @@ defmodule Mix.Tasks.NervesHub.Firmware do
       
     """)
   end
-
 end
