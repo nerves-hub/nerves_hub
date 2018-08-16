@@ -7,7 +7,12 @@ use Mix.Config
 
 # Customize non-Elixir parts of the firmware. See
 # https://hexdocs.pm/nerves/advanced-configuration.html for details.
-config :nerves, :firmware, rootfs_overlay: "rootfs_overlay"
+config :nerves, :firmware, 
+  rootfs_overlay: "rootfs_overlay",
+  provisioning: :nerves_hub
+
+config :logger,
+  backends: [RingLogger]
 
 # Use shoehorn to start the main application. See the shoehorn
 # docs for separating out critical OTP applications such as those
@@ -35,19 +40,14 @@ network_psk = System.get_env("NERVES_NETWORK_PSK") ||
 
 key_mgmt = System.get_env("NERVES_NETWORK_KEY_MGMT") || "WPA-PSK"
 
-config :nerves_network, :default,
-  wlan0: [ssid: network_ssid, psk: network_psk, key_mgmt: key_mgmt]
+config :nerves_hub, 
+  public_keys: [:test]
 
 config :nerves_hub, NervesHub.Socket,
-  url: "wss://192.168.1.103:4443/socket/websocket",
-  serializer: Jason,
-  ssl_verify: :verify_peer,
-  socket_opts: [
-    certfile: "/root/device-1234.pem" |> to_charlist,
-    keyfile: "/root/device-1234-key.pem" |> to_charlist,
-    cacertfile: "/root/ca.pem" |> to_charlist,
-    server_name_indication: 'device.nerves-hub.org'
-  ]
+  reconnect_interval: 5_000
+
+config :nerves_network, :default,
+  wlan0: [ssid: network_ssid, psk: network_psk, key_mgmt: key_mgmt]
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

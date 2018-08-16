@@ -1,5 +1,4 @@
 defmodule NervesHub.Certificate do
-
   @public_keys Application.get_env(:nerves_hub, :public_keys)
                |> NervesHubCLI.public_keys()
 
@@ -13,9 +12,9 @@ defmodule NervesHub.Certificate do
       cert_path
     else
       ca_cert_path =
-      :code.priv_dir(:nerves_hub)
-      |> to_string()
-      |> Path.join("ca_certs")
+        :code.priv_dir(:nerves_hub)
+        |> to_string()
+        |> Path.join("ca_certs")
 
       ca_cert_path
       |> File.ls!()
