@@ -7,11 +7,13 @@ defmodule NervesHub.MixProject do
       version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: [extras: ["README.md"]],
+      description: description(),
+      package: package()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger],
@@ -19,12 +21,24 @@ defmodule NervesHub.MixProject do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
+  defp description do
+    "The NervesHub client application"
+  end
+
+  defp package do
+    [
+      maintainers: ["Justin Schneck", "Frank Hunleth"],
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/nerves-hub/nerves_hub"}
+    ]
+  end
+
   defp deps do
     [
-      {:phoenix_channel_client, github: "mobileoverlord/phoenix_channel_client"},
+      {:phoenix_channel_client, "~> 0.3"},
       {:websocket_client, "~> 1.3"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:ex_doc, "~> 0.18.0", only: [:dev, :test]}
     ]
   end
 end
