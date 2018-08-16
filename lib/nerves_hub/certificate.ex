@@ -1,11 +1,14 @@
 defmodule NervesHub.Certificate do
-  @public_keys Application.get_env(:nerves_hub, :public_keys)
+  @public_keys Application.get_env(:nerves_hub, :public_keys, [])
                |> NervesHubCLI.public_keys()
 
+  
   def pem_to_der(<<"-----BEGIN", _rest::binary>> = cert) do
     [{_, cert, _}] = :public_key.pem_decode(cert)
     cert
   end
+  def pem_to_der(nil), do: ""
+  def pem_to_der(""), do: ""
 
   def ca_certs do
     if cert_path = Application.get_env(:nerves_hub_cli, :ca_certs) do
