@@ -10,6 +10,7 @@ defmodule Example.Application do
   def start(_type, _args) do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
+
     opts = [strategy: :one_for_one, name: Example.Supervisor]
     Supervisor.start_link(children(@target), opts)
   end
