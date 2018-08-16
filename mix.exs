@@ -22,7 +22,7 @@ defmodule NervesHub.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix_channel_client, github: "mobileoverlord/phoenix_channel_client"},
+      {:phoenix_channel_client, "~> 0.3"},
       {:websocket_client, "~> 1.3"},
       {:jason, "~> 1.0"}
     ]
