@@ -8,6 +8,7 @@ defmodule NervesHub.MixProject do
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      docs: [extras: ["README.md"]],
       description: description(),
       package: package()
     ]
@@ -36,7 +37,8 @@ defmodule NervesHub.MixProject do
     [
       {:phoenix_channel_client, "~> 0.3"},
       {:websocket_client, "~> 1.3"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:ex_doc, "~> 0.18.0", only: [:dev, :test]}
     ]
   end
 end

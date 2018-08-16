@@ -15,4 +15,5 @@ jobs:
       - run: mix deps.get
       - run: mix test
       - run: mix format --check-formatted
+      - run: mix docs
       - run: mix hex.build
