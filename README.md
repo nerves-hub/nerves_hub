@@ -1,21 +1,9 @@
-# nerveshub_client
+# nerves_hub
 
-[![CircleCI](https://circleci.com/gh/nerves-hub/nerveshub_client/tree/master.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerveshub_client/tree/master)
+[![CircleCI](https://circleci.com/gh/nerves-hub/nerves_hub/tree/master.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerves_hub/tree/master)
+[![Hex version](https://img.shields.io/hexpm/v/nerves_hub.svg "Hex version")](https://hex.pm/packages/nerves_hub)
 
-This directory contains a test client for interacting with the NervesHub server
+This directory contains the official client for interacting with the NervesHub server
 as a device.
 
-First start the NervesHub server, then build and start up an IEx session:
 
-```sh
-mix deps.get
-iex -S mix
-```
-
-Connect as follows:
-
-```elixir
-iex> DeviceChannel.join
-%{event: "phx_join", payload: %{}, ref: "1", topic: "device:lobby"}
-17:14:28.037 [info]  Joined channel as hub-1234
-```

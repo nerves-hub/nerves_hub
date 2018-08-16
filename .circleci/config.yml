@@ -15,3 +15,4 @@ jobs:
       - run: mix deps.get
       - run: mix test
       - run: mix format --check-formatted
+      - run: mix hex.build
