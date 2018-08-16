@@ -7,6 +7,9 @@ defmodule NervesHub.Application do
 
   def start(_type, _args) do
     # List all child processes to be supervised
+    Application.get_env(:nerves_hub, NervesHub.Socket)
+    |> NervesHub.Socket.configure()
+
     children = []
 
     # See https://hexdocs.pm/elixir/Supervisor.html
