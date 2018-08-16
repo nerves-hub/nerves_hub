@@ -5,9 +5,8 @@ defmodule NervesHub do
     {:ok, _socket} = Socket.start_link()
 
     {:ok, _channel} =
-      DeviceChannel.start_link(socket: NervesHub.Socket, topic: "device:device-1234")
+      DeviceChannel.start_link(socket: NervesHub.Socket, topic: DeviceChannel.topic())
 
-    %{uuid: Nerves.Runtime.KV.get_active(:nerves_fw_uuid)}
-    |> DeviceChannel.join()
+    DeviceChannel.join()
   end
 end

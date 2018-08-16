@@ -4,6 +4,10 @@ defmodule NervesHub.DeviceChannel do
 
   alias NervesHub.HTTPClient
 
+  def topic do
+    "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")
+  end
+
   def handle_in("update", params, state) do
     {:noreply, update_firmware(params, state)}
   end
@@ -32,7 +36,7 @@ defmodule NervesHub.DeviceChannel do
   end
 
   def handle_info({:fwup, :done}, state) do
-    Logger.debug("FWUP Finished")
+    Logger.info("FWUP Finished")
     Nerves.Runtime.reboot()
     {:noreply, state}
   end
