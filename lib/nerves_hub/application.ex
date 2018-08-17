@@ -5,12 +5,17 @@ defmodule NervesHub.Application do
 
   use Application
 
+  alias NervesHub.{Socket, FirmwareChannel}
+
   def start(_type, _args) do
     # List all child processes to be supervised
-    Application.get_env(:nerves_hub, NervesHub.Socket)
-    |> NervesHub.Socket.configure()
+    Application.get_env(:nerves_hub, Socket)
+    |> Socket.configure()
 
-    children = []
+    children = [
+      Socket,
+      {FirmwareChannel, [socket: Socket, topic: FirmwareChannel.topic()]}
+    ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
