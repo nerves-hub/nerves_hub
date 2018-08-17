@@ -1,4 +1,4 @@
-defmodule NervesHub.DeviceChannel do
+defmodule NervesHub.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
@@ -25,6 +25,14 @@ defmodule NervesHub.DeviceChannel do
     {:noreply, update_firmware(response, state)}
   end
 
+  def handle_reply(
+        {:error, :join, %{"response" => %{"reason" => reason}, "status" => "error"}},
+        state
+      ) do
+    Logger.info("Join failed: #{reason}")
+    {:stop, reason, state}
+  end
+
   def handle_reply(payload, state) do
     Logger.info("Handle Reply: #{inspect(payload)}")
     {:noreply, state}
@@ -32,6 +40,7 @@ defmodule NervesHub.DeviceChannel do
 
   def handle_close(payload, state) do
     Logger.info("Handle close: #{inspect(payload)}")
+    Process.send_after(self(), :rejoin, 5_000)
     {:noreply, state}
   end
 

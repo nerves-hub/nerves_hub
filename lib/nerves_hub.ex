@@ -1,12 +1,7 @@
 defmodule NervesHub do
-  alias NervesHub.{Socket, DeviceChannel}
+  alias NervesHub.FirmwareChannel
 
   def connect do
-    {:ok, _socket} = Socket.start_link()
-
-    {:ok, _channel} =
-      DeviceChannel.start_link(socket: NervesHub.Socket, topic: DeviceChannel.topic())
-
-    DeviceChannel.join()
+    FirmwareChannel.join()
   end
 end
