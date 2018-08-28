@@ -42,7 +42,7 @@ defmodule NervesHub.MixProject do
       {:jason, "~> 1.0"},
       {:nerves_runtime, "~> 0.3"},
       {:nerves_hub_cli, github: "nerves-hub/nerves_hub_cli", runtime: false},
-      {:ex_doc, "~> 0.18.0", only: [:dev, :test], runtime: false}
+      {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false}
     ]
   end
 end

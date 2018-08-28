@@ -6,8 +6,8 @@ defmodule Example.MixProject do
   def project do
     [
       app: :example,
-      version: "0.3.0",
-      elixir: "~> 1.4",
+      version: "0.1.0",
+      elixir: "~> 1.6",
       target: @target,
       archives: [nerves_bootstrap: "~> 1.0"],
       deps_path: "deps/#{@target}",
