@@ -3,9 +3,8 @@
 [![CircleCI](https://circleci.com/gh/nerves-hub/nerves_hub/tree/master.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerves_hub/tree/master)
 [![Hex version](https://img.shields.io/hexpm/v/nerves_hub.svg "Hex version")](https://hex.pm/packages/nerves_hub)
 
-This directory contains the official client for interacting with the NervesHub server
-as a device.
-
+This directory contains the official client for interacting with the NervesHub
+server as a device.
 
 ## Getting Started
 
@@ -13,10 +12,9 @@ as a device.
 
 Start by adding `nerves_hub` to your target dependencies in your `mix.exs` file.
 NervesHub uses SSL certificates to secure communication between the device and
-the server. It is important that the time on the device is set for SSL to function
-properly. If you are not already setting the time, you can also include 
+the server. It is important that the time on the device is set for SSL to
+function properly. If you are not already setting the time, you can also include
 `nerves_time`.
-
 
 ```elixir
   defp deps(target) do
@@ -29,26 +27,27 @@ properly. If you are not already setting the time, you can also include
   end
 ```
 
-Update your config for `:nerves` `:firmware` to delegate `:provisioning` to 
-`:nerves_hub`. This will be helpful later on when programming the firmware on 
-a device for the first time.
+Update your config for `:nerves` `:firmware` to delegate `:provisioning` to
+`:nerves_hub`. This will be helpful later on when programming the firmware on a
+device for the first time.
 
 ```elixir
-config :nerves, :firmware, 
+config :nerves, :firmware,
   rootfs_overlay: "rootfs_overlay",
   provisioning: :nerves_hub
 ```
 
 ### Setting up the CLI
 
-The NervesHubCLI is included as a dependency of `nerves_hub`. Since `nerves_hub`
-is only a target dependency, you can only run `nerves_hub` mix tasks when the
-target is set. To make it always available, add  `nerves_hub_cli` to all deps:
+The [NervesHubCLI](https://github.com/nerves-hub/nerves_hub_cli) is included as
+a dependency of `nerves_hub`. Since `nerves_hub` is only a target dependency,
+you can only run `nerves_hub` mix tasks when the target is set. To make it
+always available, add  `nerves_hub_cli` to all deps:
 
 ```elixir
   defp deps do
     [
-      {:nerves, "~> 1.2", runtime: false},
+      {:nerves, "~> 1.3", runtime: false},
       {:nerves_hub_cli, "~> 0.1", runtime: false},
       {:shoehorn, "~> 0.3"}
     ] ++ deps(@target)
@@ -70,11 +69,11 @@ mix nerves_hub.user auth
 
 ### Creating a NervesHub product
 
-NervesHub products are a way of grouping devices running firmware that is created
-from your source mix project. NervesHub uses the :app name in your mix.exs for
-the project name. If you would like it to use a different name, add a :name
-field to your Mix.Project.config(). For example, NervesHub would use "My Example"
-instead of "example" for the following project.
+NervesHub products are a way of grouping devices running firmware that is
+created from your source mix project. NervesHub uses the :app name in your
+mix.exs for the project name. If you would like it to use a different name, add
+a :name field to your Mix.Project.config(). For example, NervesHub would use "My
+Example" instead of "example" for the following project.
 
 ```elixir
   def project do
@@ -96,7 +95,7 @@ mix nerves_hub.product create --name example
 ### Creating NervesHub firmware signing keys
 
 In order to publish and distribute firmware using NervesHub, your firmware needs
-to be signed. Firmware signing keys consist of a public / private key pair that 
+to be signed. Firmware signing keys consist of a public / private key pair that
 that is generated on your computer. Only the public key is shared with NervesHub
 and is used to verify the origination of the signed firmware bundle. In this
 example we are going to create a `test` key, and instruct our app to trust it.
@@ -111,7 +110,7 @@ NervesHub needs to know which keys your application trusts. Key names are
 specified in your `config.exs`.
 
 ```elixir
-config :nerves_hub, 
+config :nerves_hub,
   public_keys: [:test]
 ```
 
@@ -128,7 +127,7 @@ mix deps.compile nerves_hub --force
 
 ### Publishing firmware
 
-Uploading firmware to NervesHub is called publishing. To publish firmware start 
+Uploading firmware to NervesHub is called publishing. To publish firmware start
 by calling:
 
 ```bash
@@ -138,26 +137,26 @@ mix firmware
 Firmware can only be published if has been signed. You can sign the firmware by
 running.
 
-```
+```bash
 mix nerves_hub.firmware sign
 ```
 
 Firmware can also be signed while publishing:
 
-```
+```bash
 mix nerves_hub.firmware publish --key test
 ```
 
 ### Initializing devices
 
-In this example we will create a device with a hardware identifier `1234`.
-The device will also be tagged with `qa` so we can target it in our deployment
-group. We will select `y` when asked if we would like to generate device 
+In this example we will create a device with a hardware identifier `1234`.  The
+device will also be tagged with `qa` so we can target it in our deployment
+group. We will select `y` when asked if we would like to generate device
 certificates. Device certificates are required for a device to establish a
 connection with the NervesHub server.
 
-```
-mix nerves_hub.device create
+```bash
+$ mix nerves_hub.device create
 
 NervesHub org: nerveshub
 identifier: 1234
@@ -170,19 +169,19 @@ Creating certificate for 1234
 Finished
 ```
 
-It is important to note that device
-certificate private keys are generated and stay on your host computer. A
-certificate signing request is sent to the server, and a signed public key
-is passed back. Generated certificates will be placed in a folder titled
-`nerves-hub` in the current working directory. You can specify a different
-location by passing `--path /path/to/certs` to NervesHubCLI mix commands.
+It is important to note that device certificate private keys are generated and
+stay on your host computer. A certificate signing request is sent to the server,
+and a signed public key is passed back. Generated certificates will be placed in
+a folder titled `nerves-hub` in the current working directory. You can specify a
+different location by passing `--path /path/to/certs` to NervesHubCLI mix
+commands.
 
 NervesHub certificates and hardware identifiers are persisted to the firmware
 when the firmware is burned to the SD card. To make this process easier, you can
 call `nerves_hub.device burn IDENTIFIER`. In this example, we are going to burn
 the firmware and certificates for device `1234` that we created.
 
-```
+```bash
 mix nerves_hub.device burn 1234
 ```
 
@@ -222,22 +221,23 @@ Local user password:
 Deployment test created
 ```
 
-Here we create a new deployment called `test`. In the conditions of this deployment
-we left the `version condition` unspecified and the `tags` set to only `test`.
-This means that in order for a device to qualify for an update, it needs to have
-at least the tags `[test]` and the device can be coming from any version.
+Here we create a new deployment called `test`. In the conditions of this
+deployment we left the `version condition` unspecified and the `tags` set to
+only `test`.  This means that in order for a device to qualify for an update, it
+needs to have at least the tags `[test]` and the device can be coming from any
+version.
 
 At this point we can try to update the connected device.
 
 Start by bumping the application version number from `0.1.0` to `0.1.1`. Then,
 create new firmware:
 
-```
+```bash
 mix firmware
 ```
 
 We can publish, sign, and deploy firmware in a single command now.
 
-```
+```bash
 mix nerves_hub.firmware publish --key test --deploy test
 ```
