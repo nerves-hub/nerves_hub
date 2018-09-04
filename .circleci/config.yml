@@ -40,7 +40,7 @@ jobs:
       - run: mix local.hex --force
       - run: mix local.rebar --force
       - run: mix deps.get
-      - run: mix test
+      - run: SUDO=true mix test
       - run: mix format --check-formatted
       - run: mix docs
       # Comment in when nerves_hub_cli is on hex
