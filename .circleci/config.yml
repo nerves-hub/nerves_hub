@@ -40,7 +40,10 @@ jobs:
       - run: mix local.hex --force
       - run: mix local.rebar --force
       - run: mix deps.get
-      - run: SUDO=true mix test
+      # Check that compilation works. There aren't any meaningful tests to run
+      # SUDO=true -> disable autodetection of a host build and the "helpful"
+      # call to sudo
+      - run: SUDO=true mix compile
       - run: mix format --check-formatted
       - run: mix docs
       # Comment in when nerves_hub_cli is on hex
