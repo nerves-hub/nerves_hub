@@ -12,7 +12,7 @@ defmodule NervesHub.FirmwareChannel do
     {:noreply, update_firmware(params, state)}
   end
 
-  def handle_in(event, payload, state) do
+  def handle_in(_event, _payload, state) do
     {:noreply, state}
   end
 
@@ -30,11 +30,11 @@ defmodule NervesHub.FirmwareChannel do
     {:stop, reason, state}
   end
 
-  def handle_reply(payload, state) do
+  def handle_reply(_payload, state) do
     {:noreply, state}
   end
 
-  def handle_close(payload, state) do
+  def handle_close(_payload, state) do
     Process.send_after(self(), :rejoin, 5_000)
     {:noreply, state}
   end
