@@ -216,7 +216,7 @@ NervesHub org: nerveshub
 Deployment name: qa_deployment
 firmware uuid: 1cbecdbb-aa7d-5aee-4ba2-864d518417df
 version condition:
-tags: qa
+tags: test
 Local user password:
 Deployment test created
 ```
