@@ -216,15 +216,15 @@ NervesHub org: nerveshub
 Deployment name: qa_deployment
 firmware uuid: 1cbecdbb-aa7d-5aee-4ba2-864d518417df
 version condition:
-tags: test
+tags: qa
 Local user password:
 Deployment test created
 ```
 
-Here we create a new deployment called `test`. In the conditions of this
+Here we create a new deployment called `qa_deployment`. In the conditions of this
 deployment we left the `version condition` unspecified and the `tags` set to
-only `test`.  This means that in order for a device to qualify for an update, it
-needs to have at least the tags `[test]` and the device can be coming from any
+only `qa`.  This means that in order for a device to qualify for an update, it
+needs to have at least the tags `[qa]` and the device can be coming from any
 version.
 
 At this point we can try to update the connected device.
@@ -239,5 +239,5 @@ mix firmware
 We can publish, sign, and deploy firmware in a single command now.
 
 ```bash
-mix nerves_hub.firmware publish --key test --deploy test
+mix nerves_hub.firmware publish --key test --deploy qa_deployment
 ```
