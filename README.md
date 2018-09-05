@@ -22,7 +22,7 @@ function properly. If you are not already setting the time, you can also include
       {:nerves_runtime, "~> 0.4"},
       {:nerves_init_gadget, "~> 0.1"},
       {:nerves_time, "~> 0.2"},
-      {:nerves_hub, path: "~> 0.1"}
+      {:nerves_hub, "~> 0.1"}
     ] ++ system(target)
   end
 ```
