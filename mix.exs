@@ -10,7 +10,7 @@ defmodule NervesHub.MixProject do
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: [extras: ["README.md"]],
+      docs: [main: "readme", extras: ["README.md"]],
       description: description(),
       package: package()
     ]
