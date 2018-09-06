@@ -17,7 +17,7 @@ defmodule NervesHub.Fwup do
     fwup = System.find_executable("fwup")
     devpath = Nerves.Runtime.KV.get("nerves_fw_devpath") || "/dev/mmcblk0"
     task = "upgrade"
-    args = ["--apply", "--no-unmount", "-d", devpath, "--task", task]
+    args = ["-n", "--apply", "--no-unmount", "-d", devpath, "--task", task, "--exit-handshake"]
     fw_config = Application.get_env(:nerves_system_test, :firmware)
 
     args =
@@ -41,13 +41,23 @@ defmodule NervesHub.Fwup do
     {:reply, :ok, state}
   end
 
-  def handle_info({_port, {:data, response}}, state) do
-    IO.write(:stderr, response)
+  def handle_info({port, {:data, response}}, %{port: port} = state) do
+    trimmed_response =
+      if String.contains?(response, "\x1a") do
+        # fwup says that it's going to exit by sending a CTRL+Z (0x1a)
+        # The CTRL+Z is the very last character that will ever be
+        # received over the port, so handshake by closing the port.
+        send(port, {self(), :close})
+        String.trim_trailing(response, "\x1a")
+      else
+        response
+      end
+
+    Logger.debug(trimmed_response)
     {:noreply, state}
   end
 
   def handle_info({_port, {:exit_status, status}}, state) do
-    Logger.configure(level: :debug)
     Logger.info("fwup exited with status #{status}")
     send(state.cm, {:fwup, :done})
     {:noreply, state}
