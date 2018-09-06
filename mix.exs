@@ -41,7 +41,7 @@ defmodule NervesHub.MixProject do
       {:websocket_client, "~> 1.3"},
       {:jason, "~> 1.0"},
       {:nerves_runtime, "~> 0.3"},
-      {:nerves_hub_cli, github: "nerves-hub/nerves_hub_cli", runtime: false},
+      {:nerves_hub_cli, "~> 0.1", runtime: false},
       {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false}
     ]
   end
