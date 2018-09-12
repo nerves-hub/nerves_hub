@@ -176,6 +176,36 @@ Firmware can also be signed while publishing:
 mix nerves_hub.firmware publish --key devkey
 ```
 
+### Conditionally applying updates
+
+Applying an update right when it is published is not always a perfect strategy.
+NervesHub allows a custom `UpdateHandler` for this.
+
+Configure NervesHub
+```elixir
+config :nerves_hub, update_handler: MyApp.NervesHubUpdateHandler
+```
+
+Implement a handler
+```elixir
+defmodule MyApp.NervesHubUpdateHandler do
+   @behaviour NervesHub.UpdateHandler
+
+   # Must return a boolean.
+   @impl NervesHub.UpdateHandler
+   def should_update?(data) do
+     SomeInternalAPI.is_now_a_good_time_to_update?(data)
+   end
+
+   # Will be called if `should_update?/1` returns false.
+   # Must return a timeout in milliseconds.
+   @impl NervesHub.UpdateHandler
+   def update_frequency() do
+     SomeInternalAPI.well_when_is_a_good_time()
+   end
+end
+```
+
 ### Initializing devices
 
 In this example we will create a device with a hardware identifier `1234`.  The
