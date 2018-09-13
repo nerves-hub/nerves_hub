@@ -19,7 +19,7 @@ function properly. If you are not already setting the time, you can also include
 ```elixir
   defp deps(target) do
     [
-      {:nerves_runtime, "~> 0.4"},
+      {:nerves_runtime, "~> 0.6"},
       {:nerves_init_gadget, "~> 0.1"},
       {:nerves_time, "~> 0.2"},
       {:nerves_hub, "~> 0.1"}
@@ -35,6 +35,22 @@ device for the first time.
 config :nerves, :firmware,
   rootfs_overlay: "rootfs_overlay",
   provisioning: :nerves_hub
+```
+
+Make sure your device connects automatically to [nerves-hub.org](https://nerves-hub.org) by adding NervesHub.connect()
+to the start function of your Application module:
+
+```elixir
+  defmodule Example.Application do
+    use Application
+
+    def start(_type, _args) do
+      NervesHub.connect()
+
+      opts = [strategy: :one_for_one, name: Example.Supervisor]
+      Supervisor.start_link(children(@target), opts)
+    end
+  end
 ```
 
 ### Setting up the CLI
@@ -138,7 +154,7 @@ Firmware can only be published if has been signed. You can sign the firmware by
 running.
 
 ```bash
-mix nerves_hub.firmware sign
+mix nerves_hub.firmware sign --key test
 ```
 
 Firmware can also be signed while publishing:
