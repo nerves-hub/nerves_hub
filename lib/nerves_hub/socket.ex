@@ -31,7 +31,7 @@ defmodule NervesHub.Socket do
       ]
     ]
 
-    config = Keyword.merge(default_config, user_config) |> IO.inspect()
+    config = Keyword.merge(default_config, user_config)
     Application.put_env(:nerves_hub, __MODULE__, config)
   end
 end
