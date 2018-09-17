@@ -7,7 +7,7 @@ use Mix.Config
 
 # Customize non-Elixir parts of the firmware. See
 # https://hexdocs.pm/nerves/advanced-configuration.html for details.
-config :nerves, :firmware, 
+config :nerves, :firmware,
   rootfs_overlay: "rootfs_overlay",
   provisioning: :nerves_hub
 
@@ -30,10 +30,10 @@ config :nerves_init_gadget,
 
 config :nerves_firmware_ssh,
   authorized_keys: [
-    File.read!(Path.join(System.user_home!, ".ssh/id_rsa.pub"))
+    File.read!(Path.join(System.user_home!(), ".ssh/id_rsa.pub"))
   ]
 
-config :nerves_hub, 
+config :nerves_hub,
   public_keys: [:test]
 
 ## Uncomment for local NervesHubWeb development
