@@ -1,5 +1,9 @@
 ## Add custom options here
 
+## Embedded Mode
+##  BEAM will lazy load modules unless this is set
+-mode embedded
+
 ## Distributed Erlang Options
 ##  The cookie needs to be configured prior to vm boot for
 ##  for read only filesystem.

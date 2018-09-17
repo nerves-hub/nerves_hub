@@ -11,7 +11,7 @@ defmodule NervesHub.Certificate do
   def pem_to_der(""), do: ""
 
   def ca_certs do
-    if cert_path = Application.get_env(:nerves_hub_cli, :ca_certs) do
+    if cert_path = Application.get_env(:nerves_hub, :ca_certs) do
       cert_path
     else
       ca_cert_path =
