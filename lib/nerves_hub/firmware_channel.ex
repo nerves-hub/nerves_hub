@@ -2,10 +2,10 @@ defmodule NervesHub.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
-  alias NervesHub.HTTPClient
+  alias NervesHub.{HTTPClient, Identifier}
 
   def topic do
-    "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")
+    "firmware:" <> Identifier.get_uuid()
   end
 
   def handle_in("update", params, state) do

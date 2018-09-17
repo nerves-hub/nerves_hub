@@ -40,7 +40,7 @@ defmodule NervesHub.MixProject do
       {:phoenix_channel_client, "~> 0.3"},
       {:websocket_client, "~> 1.3"},
       {:jason, "~> 1.0"},
-      {:nerves_runtime, ">= 0.6.5"},
+      {:nerves_runtime, ">= 0.6.5", app: Mix.env() == :prod},
       {:nerves_hub_cli, "~> 0.1", runtime: false},
       {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false}
     ]
