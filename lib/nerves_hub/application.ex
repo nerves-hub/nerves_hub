@@ -5,7 +5,7 @@ defmodule NervesHub.Application do
 
   use Application
 
-  alias NervesHub.{Socket, FirmwareChannel}
+  alias NervesHub.{Socket, FirmwareChannel, ConsoleChannel}
 
   def start(_type, _args) do
     # List all child processes to be supervised
@@ -14,6 +14,7 @@ defmodule NervesHub.Application do
 
     children = [
       Socket,
+      {ConsoleChannel, [socket: Socket, topic: ConsoleChannel.topic()]},
       {FirmwareChannel, [socket: Socket, topic: FirmwareChannel.topic()]}
     ]
 

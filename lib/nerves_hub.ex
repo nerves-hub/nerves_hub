@@ -1,7 +1,8 @@
 defmodule NervesHub do
-  alias NervesHub.FirmwareChannel
+  alias NervesHub.{FirmwareChannel, ConsoleChannel}
 
   def connect do
+    ConsoleChannel.join()
     FirmwareChannel.join()
   end
 end
