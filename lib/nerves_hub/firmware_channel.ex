@@ -57,7 +57,7 @@ defmodule NervesHub.FirmwareChannel do
     # Cancel an existing timer if it exists.
     # This prevents rescheduled uodates
     # from compounding.
-    state = maybe_cancel_reschedule_timer(state)
+    state = maybe_cancel_timer(state, :update_reschedule_timer)
 
     # possibly offload update decision to an external module.
     # This will allow application developers
@@ -83,6 +83,8 @@ defmodule NervesHub.FirmwareChannel do
   defp maybe_update_firmware(_, state), do: state
 
   defp maybe_reboot(state) do
+    state = maybe_cancel_timer(state, :reboot_reschedule_timer)
+
     if UpdateHandler.should_reboot?(@update_handler) do
       Nerves.Runtime.reboot()
       state
@@ -99,13 +101,13 @@ defmodule NervesHub.FirmwareChannel do
     end
   end
 
-  defp maybe_cancel_reschedule_timer(state) do
-    timer = Map.get(state, :reschedule_timer)
+  defp maybe_cancel_timer(state, key) do
+    timer = Map.get(state, key)
 
     if timer && Process.read_timer(timer) do
       Process.cancel_timer(timer)
     end
 
-    Map.delete(state, :reschedule_timer)
+    Map.delete(state, :key)
   end
 end
