@@ -2,8 +2,8 @@ defmodule NervesHub.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
-  alias NervesHub.{HTTPClient, UpdateHandler, DefaultUpdateHandler}
-  @update_handler Application.get_env(:nerves_hub, :update_handler, DefaultUpdateHandler)
+  alias NervesHub.{HTTPClient, Client, ClientDefault}
+  @client Application.get_env(:nerves_hub, :client, ClientDefault)
 
   def topic do
     "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")
@@ -62,21 +62,20 @@ defmodule NervesHub.FirmwareChannel do
     # possibly offload update decision to an external module.
     # This will allow application developers
     # to control exactly when an update is applied.
-    if UpdateHandler.should_update?(@update_handler, data) do
-      {:ok, http} = HTTPClient.start_link(self())
-      HTTPClient.get(http, url)
-      Logger.info("[NervesHub] Downloading firmware: #{url}")
-      state
-    else
-      ms = UpdateHandler.update_frequency(@update_handler)
+    case Client.update_available(@client, data) do
+      :apply ->
+        {:ok, http} = HTTPClient.start_link(self())
+        HTTPClient.get(http, url)
+        Logger.info("[NervesHub] Downloading firmware: #{url}")
+        state
 
-      if ms do
+      :ignore ->
+        state
+
+      {:reschedule, ms} ->
         timer = Process.send_after(self(), {:update_reschedule, data}, ms)
         Logger.info("[NervesHub] rescheduling firmware update in #{ms} milliseconds")
         Map.put(state, :update_reschedule_timer, timer)
-      else
-        state
-      end
     end
   end
 
@@ -85,19 +84,18 @@ defmodule NervesHub.FirmwareChannel do
   defp maybe_reboot(state) do
     state = maybe_cancel_timer(state, :reboot_reschedule_timer)
 
-    if UpdateHandler.should_reboot?(@update_handler) do
-      Nerves.Runtime.reboot()
-      state
-    else
-      ms = UpdateHandler.reboot_frequency(@update_handler)
+    case Client.reboot_required(@client) do
+      :apply ->
+        Nerves.Runtime.reboot()
+        state
 
-      if ms do
+      :ignore ->
+        state
+
+      {:reschedule, ms} ->
         timer = Process.send_after(self(), :reboot_reschedule, ms)
         Logger.info("[NervesHub] rescheduling reboot in #{ms} milliseconds")
-        Map.put(state, :reboot_reschedule_timer, timer)
-      else
-        state
-      end
+        Map.put(state, :update_reschedule_timer, timer)
     end
   end
 
