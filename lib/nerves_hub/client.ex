@@ -7,8 +7,25 @@ defmodule NervesHub.Client do
   @typedoc "Update that comes over a socket."
   @type update_data :: map()
 
+  @doc """
+  Called before an update is downloaded and applied. May return one of:
+  * `apply` - Download and apply the update right now.
+  * `ignore` - Don't download this update now or ever.
+  * `{:reschedule, timeout} -> Don't donload the update. Call this function again
+    in `timeout` milliseconds.
+  """
   @callback update_available(update_data) :: :apply | :ignore | {:reschedule, pos_integer()}
 
+  @doc """
+  Called before a reboot is applied. May return one of:
+  * `apply` - Reboot right now.
+  * `ignore` - Don't reboot now or ever.
+    An update won't be fully applied until the reboot is completed.
+    This prevents further updates from being downloaded until the
+    reboot is completed.
+  * `{:reschedule, timeout} -> Don't reboot. Call this function again
+    in `timeout` milliseconds.
+  """
   @callback reboot_required() :: :apply | :ignore | {:reschedule, pos_integer()}
 
   def update_available(client, data) do
