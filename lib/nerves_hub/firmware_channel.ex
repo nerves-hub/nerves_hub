@@ -55,7 +55,7 @@ defmodule NervesHub.FirmwareChannel do
 
   defp maybe_update_firmware(%{"firmware_url" => url} = data, state) do
     # Cancel an existing timer if it exists.
-    # This prevents rescheduled uodates
+    # This prevents rescheduled updates`
     # from compounding.
     state = maybe_cancel_timer(state, :update_reschedule_timer)
 
@@ -93,7 +93,7 @@ defmodule NervesHub.FirmwareChannel do
 
       if ms do
         timer = Process.send_after(self(), :reboot_reschedule, ms)
-        Logger.info("[NervesHub] rescheduling firmware update in #{ms} milliseconds")
+        Logger.info("[NervesHub] rescheduling reboot in #{ms} milliseconds")
         Map.put(state, :reboot_reschedule_timer, timer)
       else
         state
