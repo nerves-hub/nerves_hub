@@ -12,7 +12,7 @@ defmodule NervesHub.Client do
   @callback reboot_required() :: :apply | :ignore | {:reschedule, pos_integer()}
 
   def update_available(client, data) do
-    case apply(client, :update_available, [data]) do
+    case apply_wrap(client, :update_available, [data]) do
       :apply ->
         :apply
 
@@ -29,7 +29,7 @@ defmodule NervesHub.Client do
   end
 
   def reboot_required(client) do
-    case apply(client, :reboot_required, []) do
+    case apply_wrap(client, :reboot_required) do
       :apply ->
         :apply
 
@@ -43,5 +43,14 @@ defmodule NervesHub.Client do
         Logger.error("[NervesHub] Client bad return value: #{inspect(wrong)} Rebooting")
         :apply
     end
+  end
+
+  # Catches exceptions and exits
+  def apply_wrap(client, function, args \\ []) do
+    apply(client, function, args)
+  catch
+    :error, reason -> {:error, reason}
+    :exit, reason -> {:exit, reason}
+    err -> err
   end
 end

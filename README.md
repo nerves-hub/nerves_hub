@@ -179,29 +179,41 @@ mix nerves_hub.firmware publish --key devkey
 ### Conditionally applying updates
 
 Applying an update right when it is published is not always a perfect strategy.
-NervesHub allows a custom `UpdateHandler` for this.
+NervesHub allows a custom `NervesHub.Client` for this. If a client returns a bad
+value, or raises an exception, the client will `apply` the action. This is to
+prevent bad code from being irrecoverable.
 
 Configure NervesHub
 ```elixir
-config :nerves_hub, update_handler: MyApp.NervesHubUpdateHandler
+config :nerves_hub, client: MyApp.NervesHubClient
 ```
 
-Implement a handler
+Implement a client
 ```elixir
-defmodule MyApp.NervesHubUpdateHandler do
-   @behaviour NervesHub.UpdateHandler
+defmodule MyApp.NervesHubClient do
+   @behaviour NervesHub.Client
 
-   # Must return a boolean.
-   @impl NervesHub.UpdateHandler
-   def should_update?(data) do
-     SomeInternalAPI.is_now_a_good_time_to_update?(data)
+   # These functions may return:
+   #  * `:apply` - apply the action immediately
+   #  * `:ignore` - don't apply the action, don't ask again.
+   #  * `{:reschedule, timeout_in_milliseconds}` - call this function again later.
+
+   @impl NervesHub.Client
+   def update_available(data) do
+    if SomeInternalAPI.is_now_a_good_time_to_update?(data) do
+      :apply
+    else
+      {:reschedule, 60_000}
+     end
    end
 
-   # Will be called if `should_update?/1` returns false.
-   # Must return a timeout in milliseconds.
-   @impl NervesHub.UpdateHandler
-   def update_frequency() do
-     SomeInternalAPI.well_when_is_a_good_time()
+   @impl NervesHub.Client
+   def reboot_required() do
+    if SomeInternalAPI.is_now_a_good_time_to_reboot?() do
+      :apply
+    else
+      {:reschedule, 5_000}
+    end
    end
 end
 ```
