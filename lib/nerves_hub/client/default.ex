@@ -1,4 +1,4 @@
-defmodule NervesHub.ClientDefault do
+defmodule NervesHub.Client.Default do
   @moduledoc """
   Default Client implementation.
   Always applies an update. Never Reschedules
@@ -8,7 +8,4 @@ defmodule NervesHub.ClientDefault do
 
   @impl NervesHub.Client
   def update_available(_), do: :apply
-
-  @impl NervesHub.Client
-  def reboot_required(), do: :apply
 end

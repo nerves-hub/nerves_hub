@@ -180,7 +180,7 @@ Implement a client
 defmodule MyApp.NervesHubClient do
    @behaviour NervesHub.Client
 
-   # These functions may return:
+   # May return:
    #  * `:apply` - apply the action immediately
    #  * `:ignore` - don't apply the action, don't ask again.
    #  * `{:reschedule, timeout_in_milliseconds}` - call this function again later.
@@ -191,15 +191,6 @@ defmodule MyApp.NervesHubClient do
       :apply
     else
       {:reschedule, 60_000}
-     end
-   end
-
-   @impl NervesHub.Client
-   def reboot_required() do
-    if SomeInternalAPI.is_now_a_good_time_to_reboot?() do
-      :apply
-    else
-      {:reschedule, 5_000}
     end
    end
 end

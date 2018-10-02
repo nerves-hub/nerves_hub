@@ -16,18 +16,6 @@ defmodule NervesHub.Client do
   """
   @callback update_available(update_data) :: :apply | :ignore | {:reschedule, pos_integer()}
 
-  @doc """
-  Called before a reboot is applied. May return one of:
-  * `apply` - Reboot right now.
-  * `ignore` - Don't reboot now or ever.
-    An update won't be fully applied until the reboot is completed.
-    This prevents further updates from being downloaded until the
-    reboot is completed.
-  * `{:reschedule, timeout} -> Don't reboot. Call this function again
-    in `timeout` milliseconds.
-  """
-  @callback reboot_required() :: :apply | :ignore | {:reschedule, pos_integer()}
-
   def update_available(client, data) do
     case apply_wrap(client, :update_available, [data]) do
       :apply ->
@@ -41,23 +29,6 @@ defmodule NervesHub.Client do
 
       wrong ->
         Logger.error("[NervesHub] Client bad return value: #{inspect(wrong)} Applying update.")
-        :apply
-    end
-  end
-
-  def reboot_required(client) do
-    case apply_wrap(client, :reboot_required) do
-      :apply ->
-        :apply
-
-      :ignore ->
-        :ignore
-
-      {:reschedule, timeout} when timeout > 0 ->
-        {:reschedule, timeout}
-
-      wrong ->
-        Logger.error("[NervesHub] Client bad return value: #{inspect(wrong)} Rebooting")
         :apply
     end
   end

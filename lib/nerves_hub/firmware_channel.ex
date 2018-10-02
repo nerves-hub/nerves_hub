@@ -42,15 +42,12 @@ defmodule NervesHub.FirmwareChannel do
 
   def handle_info({:fwup, :done}, state) do
     Logger.info("[NervesHub] FWUP Finished")
-    {:noreply, maybe_reboot(state)}
+    Nerves.Runtime.reboot()
+    {:noreply, state}
   end
 
   def handle_info({:update_reschedule, response}, state) do
     {:noreply, maybe_update_firmware(response, state)}
-  end
-
-  def handle_info(:reboot_reschedule, state) do
-    {:noreply, maybe_reboot(state)}
   end
 
   defp maybe_update_firmware(%{"firmware_url" => url} = data, state) do
@@ -80,24 +77,6 @@ defmodule NervesHub.FirmwareChannel do
   end
 
   defp maybe_update_firmware(_, state), do: state
-
-  defp maybe_reboot(state) do
-    state = maybe_cancel_timer(state, :reboot_reschedule_timer)
-
-    case Client.reboot_required(@client) do
-      :apply ->
-        Nerves.Runtime.reboot()
-        state
-
-      :ignore ->
-        state
-
-      {:reschedule, ms} ->
-        timer = Process.send_after(self(), :reboot_reschedule, ms)
-        Logger.info("[NervesHub] rescheduling reboot in #{ms} milliseconds")
-        Map.put(state, :update_reschedule_timer, timer)
-    end
-  end
 
   defp maybe_cancel_timer(state, key) do
     timer = Map.get(state, key)
