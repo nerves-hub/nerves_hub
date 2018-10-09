@@ -20,8 +20,7 @@ function properly. If you are not already setting the time, you can also include
   defp deps(target) do
     [
       {:nerves_runtime, "~> 0.6"},
-      {:nerves_init_gadget, "~> 0.1"},
-      {:nerves_time, "~> 0.2"},
+      {:nerves_init_gadget, "~> 0.4"},
       {:nerves_hub, "~> 0.1"}
     ] ++ system(target)
   end
@@ -37,8 +36,9 @@ config :nerves, :firmware,
   provisioning: :nerves_hub
 ```
 
-Make sure your device connects automatically to [nerves-hub.org](https://nerves-hub.org) by adding NervesHub.connect()
-to the start function of your Application module:
+Make sure your device connects automatically to
+[nerves-hub.org](https://nerves-hub.org) by adding NervesHub.connect() to the
+start function of your Application module:
 
 ```elixir
   defmodule Example.Application do
@@ -55,29 +55,30 @@ to the start function of your Application module:
 
 ### Setting up the CLI
 
-The [NervesHubCLI](https://github.com/nerves-hub/nerves_hub_cli) is included as
-a dependency of `nerves_hub`. Since `nerves_hub` is only a target dependency,
-you can only run `nerves_hub` mix tasks when the target is set. To make it
-always available, add  `nerves_hub_cli` to all deps:
+While you can use the [NervesHub](https://nerves-hub.org) website to manage
+devices, many operations are more convenient when run through the CLI. We
+recommend adding the [nerves_hub_cli](https://hex.pm/packages/nerves_hub_cli)
+package to your dependency list as follows:
 
 ```elixir
   defp deps do
     [
       {:nerves, "~> 1.3", runtime: false},
-      {:nerves_hub_cli, "~> 0.1", runtime: false},
-      {:shoehorn, "~> 0.3"}
+      {:nerves_hub_cli, "~> 0.1", runtime: false}
+      ...
     ] ++ deps(@target)
   end
 ```
 
-Using the NervesHubCLI requires that you first create a NervesHub account and
-create your user certificates. You can register for a new account by running:
+Run `mix deps.get` to download the `nerves_hub_cli` dependency.
+
+A NervesHub account is required to use the CLI. Create a new account by running:
 
 ```bash
 mix nerves_hub.user register
 ```
 
-If you have an existing account, you can authenticate by running:
+If you have an account, authenticate by running:
 
 ```bash
 mix nerves_hub.user auth
@@ -85,11 +86,14 @@ mix nerves_hub.user auth
 
 ### Creating a NervesHub product
 
-NervesHub products are a way of grouping devices running firmware that is
-created from your source mix project. NervesHub uses the :app name in your
-mix.exs for the project name. If you would like it to use a different name, add
-a :name field to your Mix.Project.config(). For example, NervesHub would use "My
-Example" instead of "example" for the following project.
+A NervesHub product groups devices that run the same kind of firmware. All
+devices and firmware images have a product. NervesHub provides finer grain
+mechanisms for grouping devices, but a product is needed to get started.
+
+By default, NervesHub uses the `:app` name in your `mix.exs` for the product
+name. If you would like it to use a different name, add a `:name` field to your
+`Mix.Project.config()`. For example, NervesHub would use "My Example" instead of
+"example" for the following project:
 
 ```elixir
   def project do
@@ -100,9 +104,10 @@ Example" instead of "example" for the following project.
   end
 ```
 
-For the remainder of this document, we will be using the product name `example`.
+For the remainder of this document, though, we will not use the `:name` field
+and simply use the product name `example`.
 
-You can create a new product on nerves hub by running:
+Create a new product on NervesHub by running:
 
 ```bash
 mix nerves_hub.product create --name example
