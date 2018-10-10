@@ -115,35 +115,43 @@ mix nerves_hub.product create
 
 ### Creating NervesHub firmware signing keys
 
-In order to publish and distribute firmware using NervesHub, your firmware needs
-to be signed. Firmware signing keys consist of a public / private key pair that
-that is generated on your computer. Only the public key is shared with NervesHub
-and is used to verify the origination of the signed firmware bundle. In this
-example we are going to create a `test` key, and instruct our app to trust it.
+NervesHub requires cryptographic signatures on all managed firmware. Devices
+receiving firmware from NervesHub validate signatures. Since firmware is signed
+before uploading to NervesHub, NervesHub or any service NervesHub uses cannot
+modify it.
 
-First start by generating a new key pair.
+Firmware authentication uses [Ed25519 digital
+signatures](https://en.wikipedia.org/wiki/EdDSA#Ed25519). You need to create at
+least one public/private key pair and copy the public key part to NervesHub and
+to devices. NervesHub tooling helps with both. A typical setup has multiple
+signing keys to support key rotation and "development" keys that are not as
+protected.
+
+Start by creating a `devkey` firmware signing key pair:
 
 ```bash
-mix nerves_hub.key create test
+mix nerves_hub.key create devkey
 ```
 
-NervesHub needs to know which keys your application trusts. Key names are
-specified in your `config.exs`.
+On success, you'll see the public key. You can confirm using the NervesHub web
+interface that the signing key exists.
+
+Next, add the key's name to your `config.exs` so that it can be built into your
+firmware image:
 
 ```elixir
 config :nerves_hub,
-  public_keys: [:test]
+  public_keys: [:devkey]
 ```
 
-You can have multiple key names specified in this list. When the `nerves_hub`
-dependency is compiled, it will replace the key names in this list with the
-local public key contents from the NervesHubCLI key storage. It is recommended
-to recompile `nerves_hub` after modifying this list.
-
-You can recompile `nerves_hub` by running:
+The `nerves_hub` dependency converts key names to public keys at compile time.
+If you haven't compiled your project yet, run `mix firmware` now. If you have
+compiled it, `mix` won't know to recompile `nerves_hub` due to the configuration
+change. Force it to recompile by running:
 
 ```bash
 mix deps.compile nerves_hub --force
+mix firmware
 ```
 
 ### Publishing firmware
@@ -159,13 +167,13 @@ Firmware can only be published if has been signed. You can sign the firmware by
 running.
 
 ```bash
-mix nerves_hub.firmware sign --key test
+mix nerves_hub.firmware sign --key devkey
 ```
 
 Firmware can also be signed while publishing:
 
 ```bash
-mix nerves_hub.firmware publish --key test
+mix nerves_hub.firmware publish --key devkey
 ```
 
 ### Initializing devices
@@ -260,5 +268,5 @@ mix firmware
 We can publish, sign, and deploy firmware in a single command now.
 
 ```bash
-mix nerves_hub.firmware publish --key test --deploy qa_deployment
+mix nerves_hub.firmware publish --key devkey --deploy qa_deployment
 ```
