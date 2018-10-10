@@ -110,7 +110,7 @@ and simply use the product name `example`.
 Create a new product on NervesHub by running:
 
 ```bash
-mix nerves_hub.product create --name example
+mix nerves_hub.product create
 ```
 
 ### Creating NervesHub firmware signing keys
