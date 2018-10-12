@@ -2,7 +2,7 @@ defmodule NervesHub.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
-  alias NervesHub.{HTTPClient, Client}
+  alias NervesHub.{HTTPClient, Client, HTTPFwupStream}
   @client Application.get_env(:nerves_hub, :client, Client.Default)
 
   def topic do
@@ -50,6 +50,11 @@ defmodule NervesHub.FirmwareChannel do
     {:noreply, maybe_update_firmware(response, state)}
   end
 
+  def handle_info({:error, err}, state) do
+    Logger.error("[NervesHub] FWUP failed: #{inspect(err)}")
+    {:noreply, state}
+  end
+
   defp maybe_update_firmware(%{"firmware_url" => url} = data, state) do
     # Cancel an existing timer if it exists.
     # This prevents rescheduled updates`
@@ -61,8 +66,8 @@ defmodule NervesHub.FirmwareChannel do
     # to control exactly when an update is applied.
     case Client.update_available(@client, data) do
       :apply ->
-        {:ok, http} = HTTPClient.start_link(self())
-        HTTPClient.get(http, url)
+        {:ok, http} = HTTPFwupStream.start_link(self())
+        HTTPFwupStream.get(http, url)
         Logger.info("[NervesHub] Downloading firmware: #{url}")
         state
 
