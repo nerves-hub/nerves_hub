@@ -2,8 +2,8 @@ defmodule NervesHub.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
-  alias NervesHub.{HTTPClient, Client, ClientDefault}
-  @client Application.get_env(:nerves_hub, :client, ClientDefault)
+  alias NervesHub.{HTTPClient, Client}
+  @client Application.get_env(:nerves_hub, :client, Client.Default)
 
   def topic do
     "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")

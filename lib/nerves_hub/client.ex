@@ -28,7 +28,10 @@ defmodule NervesHub.Client do
         {:reschedule, timeout}
 
       wrong ->
-        Logger.error("[NervesHub] Client bad return value: #{inspect(wrong)} Applying update.")
+        Logger.error(
+          "[NervesHub] Client: #{client}.update_available/1 bad return value: #{inspect(wrong)} Applying update."
+        )
+
         :apply
     end
   end
