@@ -49,7 +49,15 @@ defmodule NervesHub.HTTPFwupStream do
 
     http_opts = [timeout: :infinity, autoredirect: false]
     opts = [stream: :self, receiver: self(), sync: false]
-    :httpc.request(:get, {String.to_charlist(url), headers}, http_opts, opts, :nerves_system_test)
+
+    :httpc.request(
+      :get,
+      {String.to_charlist(url), headers},
+      http_opts,
+      opts,
+      :nerves_hub_fwup_stream
+    )
+
     {:noreply, %{s | url: url, caller: from}}
   end
 
@@ -134,7 +142,7 @@ defmodule NervesHub.HTTPFwupStream do
   end
 
   defp start_httpc() do
-    :inets.start(:httpc, profile: :nerves_system_test)
+    :inets.start(:httpc, profile: :nerves_hub_fwup_stream)
 
     opts = [
       max_sessions: 8,
@@ -144,6 +152,6 @@ defmodule NervesHub.HTTPFwupStream do
       pipeline_timeout: 60_000
     ]
 
-    :httpc.set_options(opts, :nerves_system_test)
+    :httpc.set_options(opts, :nerves_hub_fwup_stream)
   end
 end
