@@ -2,7 +2,7 @@ defmodule NervesHub.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
-  alias NervesHub.{HTTPClient, Client, HTTPFwupStream}
+  alias NervesHub.{Client, HTTPFwupStream}
   @client Application.get_env(:nerves_hub, :client, Client.Default)
 
   def topic do
@@ -40,9 +40,14 @@ defmodule NervesHub.FirmwareChannel do
     {:noreply, state}
   end
 
-  def handle_info({:fwup, :done}, state) do
+  def handle_info({:fwup, {:ok, 0, ""}}, state) do
     Logger.info("[NervesHub] FWUP Finished")
     Nerves.Runtime.reboot()
+    {:noreply, state}
+  end
+
+  def handle_info({:fwup, message}, state) do
+    _ = Client.handle_fwup_message(@client, message)
     {:noreply, state}
   end
 
@@ -50,9 +55,13 @@ defmodule NervesHub.FirmwareChannel do
     {:noreply, maybe_update_firmware(response, state)}
   end
 
-  def handle_info({:error, err}, state) do
-    Logger.error("[NervesHub] FWUP failed: #{inspect(err)}")
+  def handle_info({:DOWN, _, :process, _, :normal}, state) do
     {:noreply, state}
+  end
+
+  def handle_info({:DOWN, _, :process, _, reason}, state) do
+    Logger.error("HTTP Stream Error: #{inspect(reason)}")
+    {:stop, reason, state}
   end
 
   defp maybe_update_firmware(%{"firmware_url" => url} = data, state) do
@@ -67,7 +76,7 @@ defmodule NervesHub.FirmwareChannel do
     case Client.update_available(@client, data) do
       :apply ->
         {:ok, http} = HTTPFwupStream.start_link(self())
-        HTTPFwupStream.get(http, url)
+        spawn_monitor(HTTPFwupStream, :get, [http, url])
         Logger.info("[NervesHub] Downloading firmware: #{url}")
         state
 

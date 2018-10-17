@@ -2,7 +2,6 @@ defmodule NervesHub.HTTPFwupStream do
   use GenServer
 
   require Logger
-  alias NervesHub.Fwup
 
   @redirect_status_codes [301, 302, 303, 307, 308]
 
@@ -20,8 +19,15 @@ defmodule NervesHub.HTTPFwupStream do
   end
 
   def init([cb]) do
-    {:ok, fwup} = Fwup.start_link(self())
-    Logger.configure(level: :error)
+    devpath = Nerves.Runtime.KV.get("nerves_fw_devpath") || "/dev/mmcblk0"
+    args = ["--apply", "--no-unmount", "-d", devpath, "--task", "upgrade"]
+
+    args =
+      Enum.reduce(NervesHub.Certificate.public_keys(), args, fn public_key, args ->
+        args ++ ["--public-key", public_key]
+      end)
+
+    {:ok, fwup} = Fwup.stream(cb, args)
 
     {:ok,
      %{
@@ -32,8 +38,7 @@ defmodule NervesHub.HTTPFwupStream do
        filename: "",
        caller: nil,
        number_of_redirects: 0,
-       fwup: fwup,
-       callback: cb
+       fwup: fwup
      }}
   end
 
@@ -96,11 +101,7 @@ defmodule NervesHub.HTTPFwupStream do
   end
 
   def handle_info({:http, {_, :stream, data}}, s) do
-    # size = byte_size(data) + s.buffer_size
-    # buffer = s.buffer <> data
-    Logger.debug("Send Chunk")
     Fwup.send_chunk(s.fwup, data)
-    # put_progress(size, s.content_length)
     {:noreply, s}
   end
 
@@ -132,12 +133,6 @@ defmodule NervesHub.HTTPFwupStream do
   def handle_info({:http, {_ref, {{_, status_code, _}, _headers, body}}}, s) do
     Logger.error("Error: #{status_code} #{inspect(body)}")
     GenServer.reply(s.caller, {:error, body})
-    send(s.callback, {:error, body})
-    {:noreply, s}
-  end
-
-  def handle_info({:fwup, :done} = msg, s) do
-    send(s.callback, msg)
     {:noreply, s}
   end
 
