@@ -16,6 +16,18 @@ defmodule NervesHub.Client do
   """
   @callback update_available(update_data) :: :apply | :ignore | {:reschedule, pos_integer()}
 
+  @type fwup_message ::
+          {:ok, pos_integer, String.t()}
+          | {:warning, pos_integer, String.t()}
+          | {:error, pos_integer, String.t()}
+          | {:progress, 0..100}
+
+  @doc """
+  Called whenever a message comes from a FWUP stream.
+  The return value of this function is not checked.
+  """
+  @callback handle_fwup_message(fwup_message) :: :ok
+
   def update_available(client, data) do
     case apply_wrap(client, :update_available, [data]) do
       :apply ->
@@ -34,6 +46,11 @@ defmodule NervesHub.Client do
 
         :apply
     end
+  end
+
+  def handle_fwup_message(client, data) do
+    _ = apply_wrap(client, :handle_fwup_message, [data])
+    :ok
   end
 
   # Catches exceptions and exits

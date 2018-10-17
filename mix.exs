@@ -43,7 +43,8 @@ defmodule NervesHub.MixProject do
       {:hackney, "~> 1.10"},
       {:nerves_runtime, ">= 0.6.5"},
       {:nerves_hub_cli, "~> 0.1", runtime: false},
-      {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false}
+      {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false},
+      {:fwup, "~> 0.3.0"}
     ]
   end
 end
