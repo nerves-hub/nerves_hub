@@ -4,7 +4,6 @@
   "earmark": {:hex, :earmark, "1.2.6", "b6da42b3831458d3ecc57314dff3051b080b9b2be88c2e5aa41cd642a5b044ed", [:mix], [], "hexpm"},
   "elixir_make": {:hex, :elixir_make, "0.4.2", "332c649d08c18bc1ecc73b1befc68c647136de4f340b548844efc796405743bf", [:mix], [], "hexpm"},
   "ex_doc": {:hex, :ex_doc, "0.19.1", "519bb9c19526ca51d326c060cb1778d4a9056b190086a8c6c115828eaccea6cf", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}, {:makeup_elixir, "~> 0.7", [hex: :makeup_elixir, repo: "hexpm", optional: false]}], "hexpm"},
-  "ex_fwup": {:hex, :ex_fwup, "0.2.0", "ea47dd24ffb7d07e1c2d081ed0caf1cc4de3039ffbcc7832de508f2c730c5089", [:mix], [], "hexpm"},
   "fwup": {:hex, :fwup, "0.3.0", "2c360815565fcbc945ebbb34b58f156efacb7f8d64766f1cb3426919bb3f41ea", [:mix], [], "hexpm"},
   "hackney": {:hex, :hackney, "1.14.0", "66e29e78feba52176c3a4213d42b29bdc4baff93a18cfe480f73b04677139dee", [:rebar3], [{:certifi, "2.4.2", [hex: :certifi, repo: "hexpm", optional: false]}, {:idna, "6.0.0", [hex: :idna, repo: "hexpm", optional: false]}, {:metrics, "1.0.1", [hex: :metrics, repo: "hexpm", optional: false]}, {:mimerl, "1.0.2", [hex: :mimerl, repo: "hexpm", optional: false]}, {:ssl_verify_fun, "1.1.4", [hex: :ssl_verify_fun, repo: "hexpm", optional: false]}], "hexpm"},
   "hex_crypto": {:git, "https://github.com/hexpm/hex_crypto.git", "f916ad0538dad79d3d331b771ea3531c40ef6082", [branch: "js-hex-crypto-init"]},
