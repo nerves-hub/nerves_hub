@@ -13,6 +13,9 @@ config :nerves_hub, NervesHub.Socket,
     server_name_indication: 'device.nerves-hub.org'
   ]
 
+config :nerves_runtime,
+  target: System.get_env("MIX_TARGET") || "host"
+
 config :logger, level: :info
 
 # Import environment specific config. This must remain at the bottom
