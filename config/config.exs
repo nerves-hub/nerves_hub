@@ -39,7 +39,7 @@ key =
 
 config :nerves_runtime, Nerves.Runtime.KV.Mock, %{
   "nerves_fw_active" => "a",
-  "a.nerves_fw_uuid" => "f735d7e2-c16c-42bb-8e5c-700b384b7f12",
+  "a.nerves_fw_uuid" => "8a8b902c-d1a9-58aa-6111-04ab57c2f2a8",
   "nerves_hub_cert" => cert,
   "nerves_hub_key" => key,
   "nerves_fw_devpath" => "/no!"
