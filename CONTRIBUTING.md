@@ -2,7 +2,7 @@
 
 Setup local env vars
 
-```
+```bash
 export NERVES_HUB_HOME=./nerves-hub
 export NERVES_HUB_HOST=0.0.0.0
 export NERVES_HUB_PORT=4002
@@ -32,13 +32,25 @@ make server
 
 Setup a local instance of NervesHub
 
+Clone `nerves_hub` and fetch deps
+
 ```bash
 git clone git@github.com:nerves-hub/nerves_hub.git
 cd nerves_hub
 mix deps.get
-mix nerves_hub.user register # use test@test.org for good luck.
-mix nerves_hub.product create --name test
-mix nerves_hub.device cert create test
+```
+
+Authenticate as the default user.
+
+email: nerveshub@nerves-hub.org
+password: nerveshub
+
+```bash
+mix nerves_hub.user auth
+```
+
+```bash
+NERVES_HUB_NON_INTERACTIVE=y mix nerves_hub.device create --identifier test --description test --tag test
 mix deps.compile --force # this is to reload cert and key you just created
 iex -S mix # make your changes, test em out etc.
 ```
