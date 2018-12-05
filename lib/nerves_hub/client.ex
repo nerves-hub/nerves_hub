@@ -28,6 +28,12 @@ defmodule NervesHub.Client do
   """
   @callback handle_fwup_message(fwup_message) :: :ok
 
+  @doc """
+  Called whenever a stream fails or exits for a non-normal reason.
+  The return value of this function is not checked.
+  """
+  @callback handle_error(any) :: :ok
+
   def update_available(client, data) do
     case apply_wrap(client, :update_available, [data]) do
       :apply ->
@@ -51,6 +57,10 @@ defmodule NervesHub.Client do
   def handle_fwup_message(client, data) do
     _ = apply_wrap(client, :handle_fwup_message, [data])
     :ok
+  end
+
+  def handle_error(client, data) do
+    _ = apply_wrap(client, :handle_error, [data])
   end
 
   # Catches exceptions and exits
