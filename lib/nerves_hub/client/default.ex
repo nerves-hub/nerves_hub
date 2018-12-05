@@ -26,4 +26,9 @@ defmodule NervesHub.Client.Default do
   def handle_fwup_message(_fwup_message) do
     :ok
   end
+
+  @impl NervesHub.Client
+  def handle_error(error) do
+    Logger.warn("Firmware stream error: #{inspect(error)}")
+  end
 end

@@ -28,6 +28,7 @@ defmodule NervesHub.FirmwareChannel do
         {:error, :join, %{"response" => %{"reason" => reason}, "status" => "error"}},
         state
       ) do
+    _ = Client.handle_error(@client, reason)
     {:stop, reason, state}
   end
 
@@ -40,14 +41,21 @@ defmodule NervesHub.FirmwareChannel do
     {:noreply, state}
   end
 
-  def handle_info({:fwup, {:ok, 0, ""}}, state) do
+  def handle_info({:fwup, {:ok, 0, message}}, state) do
     Logger.info("[NervesHub] FWUP Finished")
+    _ = Client.handle_fwup_message(@client, message)
     Nerves.Runtime.reboot()
     {:noreply, state}
   end
 
   def handle_info({:fwup, message}, state) do
     _ = Client.handle_fwup_message(@client, message)
+    {:noreply, state}
+  end
+
+  def handle_info({:http_error, error}, state) do
+    Logger.error("HTTP Stream Error: #{inspect(error)}")
+    _ = Client.handle_error(@client, error)
     {:noreply, state}
   end
 
@@ -61,6 +69,7 @@ defmodule NervesHub.FirmwareChannel do
 
   def handle_info({:DOWN, _, :process, _, reason}, state) do
     Logger.error("HTTP Stream Error: #{inspect(reason)}")
+    _ = Client.handle_error(@client, reason)
     {:stop, reason, state}
   end
 

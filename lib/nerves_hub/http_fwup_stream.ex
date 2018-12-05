@@ -1,4 +1,17 @@
 defmodule NervesHub.HTTPFwupStream do
+  @moduledoc """
+  Handles streaming a fwupdate via HTTP.
+
+  a `callback` module is expected to be passed to `start_link/1`
+
+  messages will be recieved in the shape:
+  * `{:fwup_message, message}` - see the docs for
+    [Fwup](https://hexdocs.pm/fwup/) for more info.
+  * `{:http_error, {status_code, body}}`
+  * `{:http_error, :timeout}`
+  * `{:http_error, :too_many_redirects}`
+  """
+
   use GenServer
 
   require Logger
@@ -32,19 +45,31 @@ defmodule NervesHub.HTTPFwupStream do
     {:ok,
      %{
        url: nil,
+       callback: cb,
        content_length: 0,
        buffer: "",
        buffer_size: 0,
        filename: "",
        caller: nil,
        number_of_redirects: 0,
+       timeout: 15000,
        fwup: fwup
      }}
   end
 
+  def terminate(:normal, state) do
+    GenServer.stop(state.fwup, :normal)
+    :noop
+  end
+
+  def terminate({:error, reason}, state) do
+    state.caller && GenServer.reply(state.caller, reason)
+    state.callback && send(state.callback, reason)
+    GenServer.stop(state.fwup, :normal)
+  end
+
   def handle_call({:get, _url}, _from, %{number_of_redirects: n} = s) when n > 5 do
-    GenServer.reply(s.caller, {:error, :too_many_redirects})
-    {:noreply, %{s | url: nil, number_of_redirects: 0, caller: nil}}
+    {:stop, {:error, {:http_error, :too_many_redirects}}, s}
   end
 
   def handle_call({:get, url}, from, s) do
@@ -102,17 +127,16 @@ defmodule NervesHub.HTTPFwupStream do
 
   def handle_info({:http, {_, :stream, data}}, s) do
     Fwup.send_chunk(s.fwup, data)
-    {:noreply, s}
+    {:noreply, s, s.timeout}
   end
 
   def handle_info({:http, {_, :stream_end, _headers}}, s) do
     Logger.debug("Stream End")
-    IO.write(:stderr, "\n")
     GenServer.reply(s.caller, {:ok, s.buffer})
     {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
   end
 
-  def handle_info({:http, {_ref, {{_, status_code, _}, headers, _body}}}, s)
+  def handle_info({:http, {_ref, {{_, status_code, _}, headers, body}}}, s)
       when status_code in @redirect_status_codes do
     Logger.debug("Redirect")
 
@@ -126,14 +150,18 @@ defmodule NervesHub.HTTPFwupStream do
         })
 
       _ ->
-        GenServer.reply(s.caller, {:error, status_code})
+        {:stop, {:http_error, {status_code, body}}, s}
     end
   end
 
   def handle_info({:http, {_ref, {{_, status_code, _}, _headers, body}}}, s) do
     Logger.error("Error: #{status_code} #{inspect(body)}")
-    GenServer.reply(s.caller, {:error, body})
-    {:noreply, s}
+    {:stop, {:error, {:http_error, {status_code, body}}}, s}
+  end
+
+  def handle_info(:timeout, s) do
+    Logger.error("Error: timeout")
+    {:stop, {:error, {:http_error, :timeout}}, s}
   end
 
   defp start_httpc() do
