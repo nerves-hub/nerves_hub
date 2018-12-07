@@ -38,7 +38,8 @@ defmodule Example.MixProject do
   defp deps do
     [
       {:nerves, "~> 1.3", runtime: false},
-      {:shoehorn, "~> 0.4"}
+      {:shoehorn, "~> 0.4"},
+      {:nerves_hub, path: "../"}
     ] ++ deps(@target)
   end
 
@@ -49,8 +50,7 @@ defmodule Example.MixProject do
     [
       {:nerves_runtime, "~> 0.8"},
       {:nerves_init_gadget, "~> 0.5"},
-      {:nerves_time, "~> 0.2"},
-      {:nerves_hub, path: "../"}
+      {:nerves_time, "~> 0.2"}
     ] ++ system(target)
   end
 
