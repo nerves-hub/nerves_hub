@@ -8,9 +8,9 @@ defmodule NervesHub.Socket do
   @server_name "device.nerves-hub.org"
   @url "wss://" <> @server_name <> "/socket/websocket"
 
-  def configure(nil), do: configure([])
+  def opts(nil), do: opts([])
 
-  def configure(user_config) when is_list(user_config) do
+  def opts(user_config) when is_list(user_config) do
     ca_certs = Certificate.ca_certs()
     cert = Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()
     key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
@@ -31,7 +31,6 @@ defmodule NervesHub.Socket do
       ]
     ]
 
-    config = Keyword.merge(default_config, user_config)
-    Application.put_env(:nerves_hub, __MODULE__, config)
+    Keyword.merge(default_config, user_config)
   end
 end

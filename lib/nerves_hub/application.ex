@@ -9,12 +9,14 @@ defmodule NervesHub.Application do
 
   def start(_type, _args) do
     # List all child processes to be supervised
-    Application.get_env(:nerves_hub, Socket)
-    |> Socket.configure()
+    socket_opts =
+      Application.get_env(:nerves_hub, Socket)
+      |> Socket.opts()
 
     children = [
-      Socket,
-      {FirmwareChannel, [socket: Socket, topic: FirmwareChannel.topic()]}
+      {Socket, socket_opts},
+      {FirmwareChannel,
+       {[socket: Socket, topic: FirmwareChannel.topic()], [name: FirmwareChannel]}}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
