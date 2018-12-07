@@ -37,12 +37,12 @@ defmodule NervesHub.MixProject do
 
   defp deps do
     [
-      {:phoenix_channel_client, "~> 0.3"},
+      {:phoenix_channel_client, "~> 0.4"},
       {:websocket_client, "~> 1.3"},
       {:jason, "~> 1.0"},
       {:hackney, "~> 1.10"},
       {:nerves_runtime, "~> 0.8"},
-      {:nerves_hub_cli, "~> 0.4", runtime: false},
+      {:nerves_hub_cli, "~> 0.5", runtime: false},
       {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false},
       {:fwup, "~> 0.3.0"}
     ]

@@ -1,10 +1,12 @@
 defmodule NervesHub do
   require Logger
+
   alias NervesHub.{FirmwareChannel, HTTPClient, HTTPFwupStream, Client}
+
   @client Application.get_env(:nerves_hub, :client, Client.Default)
 
   def connect do
-    FirmwareChannel.join()
+    PhoenixChannelClient.join(FirmwareChannel)
   end
 
   def update do
