@@ -1,9 +1,28 @@
 defmodule NervesHub do
+  @on_load :on_load
+
   require Logger
 
   alias NervesHub.{FirmwareChannel, HTTPClient, HTTPFwupStream, Client}
 
   @client Application.get_env(:nerves_hub, :client, Client.Default)
+
+  def on_load() do
+    if Code.ensure_loaded?(NervesHubCLI) do
+      current_keys = public_keys()
+
+      new_keys =
+        Application.get_env(:nerves_hub, :public_keys, [])
+        |> NervesHubCLI.public_keys()
+
+      if current_keys == new_keys do
+        :ok
+      else
+        keys = Enum.join(new_keys, "\n")
+        File.write!(public_keys_file(), keys, [:write])
+      end
+    end
+  end
 
   def connect do
     PhoenixChannelClient.join(FirmwareChannel)
@@ -48,5 +67,21 @@ defmodule NervesHub do
       {:DOWN, _, :process, _, reason} ->
         {:error, reason}
     end
+  end
+
+  def public_keys(key_file \\ nil) do
+    key_file = key_file || public_keys_file()
+
+    case File.read(key_file) do
+      {:ok, keys} -> String.split(keys)
+      _ -> []
+    end
+  end
+
+  def public_keys_file do
+    :nerves_hub
+    |> :code.priv_dir()
+    |> to_string()
+    |> Path.join("public_keys")
   end
 end

@@ -1,7 +1,4 @@
 defmodule NervesHub.Certificate do
-  @public_keys Application.get_env(:nerves_hub, :public_keys, [])
-               |> NervesHubCLI.public_keys()
-
   def pem_to_der(<<"-----BEGIN", _rest::binary>> = cert) do
     [{_, cert, _}] = :public_key.pem_decode(cert)
     cert
@@ -24,9 +21,5 @@ defmodule NervesHub.Certificate do
     |> File.ls!()
     |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
     |> Enum.map(&pem_to_der/1)
-  end
-
-  def public_keys do
-    @public_keys
   end
 end

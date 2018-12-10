@@ -23,7 +23,7 @@ defmodule NervesHub.HTTPFwupStream do
     args = ["--apply", "--no-unmount", "-d", devpath, "--task", "upgrade"]
 
     args =
-      Enum.reduce(NervesHub.Certificate.public_keys(), args, fn public_key, args ->
+      Enum.reduce(NervesHub.public_keys(), args, fn public_key, args ->
         args ++ ["--public-key", public_key]
       end)
 
