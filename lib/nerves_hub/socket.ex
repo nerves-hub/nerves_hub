@@ -11,26 +11,47 @@ defmodule NervesHub.Socket do
   def opts(nil), do: opts([])
 
   def opts(user_config) when is_list(user_config) do
-    ca_certs = Certificate.ca_certs()
-    cert = Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()
-    key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
+    ca_certs = user_config[:cacerts] || Certificate.ca_certs()
 
-    server_name =
+    {cert_key, cert_value} = cert(user_config)
+    {key_key, key_value} = key(user_config)
+
+    sni =
       (user_config[:server_name_indication] || @server_name)
-      |> to_charlist()
+    sni = if is_binary(sni), do: to_charlist(sni), else: sni
+
+    socket_opts = [
+      cacerts: ca_certs,
+      server_name_indication: sni
+    ]
+    |> Keyword.put(cert_key, cert_value)
+    |> Keyword.put(key_key, key_value)
 
     default_config = [
       url: @url,
       serializer: Jason,
       ssl_verify: :verify_peer,
-      socket_opts: [
-        cert: cert,
-        key: {:ECPrivateKey, key},
-        cacerts: ca_certs,
-        server_name_indication: server_name
-      ]
+      socket_opts: socket_opts
     ]
 
     Keyword.merge(default_config, user_config)
+  end
+
+  def cert(opts) do
+    cond do
+      opts[:certfile] != nil -> {:certfile, opts[:certfile]}
+      opts[:cert] != nil -> {:cert, opts[:cert]}
+      true -> {:cert, Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()}
+    end
+  end
+
+  def key(opts) do
+    cond do
+      opts[:keyfile] != nil -> {:keyfile, opts[:keyfile]}
+      opts[:key] != nil -> {:key, opts[:key]}
+      true ->
+        key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
+        {:key, {:ECPrivateKey, key}}
+    end
   end
 end
