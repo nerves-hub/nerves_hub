@@ -16,16 +16,16 @@ defmodule NervesHub.Socket do
     {cert_key, cert_value} = cert(user_config)
     {key_key, key_value} = key(user_config)
 
-    sni =
-      (user_config[:server_name_indication] || @server_name)
+    sni = user_config[:server_name_indication] || @server_name
     sni = if is_binary(sni), do: to_charlist(sni), else: sni
 
-    socket_opts = [
-      cacerts: ca_certs,
-      server_name_indication: sni
-    ]
-    |> Keyword.put(cert_key, cert_value)
-    |> Keyword.put(key_key, key_value)
+    socket_opts =
+      [
+        cacerts: ca_certs,
+        server_name_indication: sni
+      ]
+      |> Keyword.put(cert_key, cert_value)
+      |> Keyword.put(key_key, key_value)
 
     default_config = [
       url: @url,
@@ -47,8 +47,12 @@ defmodule NervesHub.Socket do
 
   def key(opts) do
     cond do
-      opts[:keyfile] != nil -> {:keyfile, opts[:keyfile]}
-      opts[:key] != nil -> {:key, opts[:key]}
+      opts[:keyfile] != nil ->
+        {:keyfile, opts[:keyfile]}
+
+      opts[:key] != nil ->
+        {:key, opts[:key]}
+
       true ->
         key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
         {:key, {:ECPrivateKey, key}}
