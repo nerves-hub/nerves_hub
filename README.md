@@ -37,18 +37,46 @@ config :nerves, :firmware,
 ```
 
 Make sure your device connects automatically to
-[nerves-hub.org](https://nerves-hub.org) by adding NervesHub.connect() to the
-start function of your Application module:
+[nerves-hub.org](https://nerves-hub.org) by adding `NervesHub.Supervisor` to your
+main application supervisor:
 
 ```elixir
   defmodule Example.Application do
     use Application
 
     def start(_type, _args) do
-      NervesHub.connect()
 
       opts = [strategy: :one_for_one, name: Example.Supervisor]
-      Supervisor.start_link(children(@target), opts)
+      children = [
+        NervesHub.Supervisor
+      ] ++ children(@target)
+      Supervisor.start_link(children, opts)
+    end
+  end
+```
+
+SSL options can be configured by passing them into the NervesHub supervisor.
+This is useful for applications that store their ssl credentials in differnt
+places, such as [NervesKey](https://github.com/nerves-hub/nerves_key).
+
+```elixir
+  defmodule Example.Application do
+    use Application
+
+    def start(_type, _args) do
+      {:ok, engine} = NervesKey.PKCS11.load_engine()
+      {:ok, i2c} = ATECC508A.Transport.I2C.init([])
+      nerves_key_socket_opts = [
+        key: NervesKey.PKCS11.private_key(engine),
+        cert: X509.Certificate.to_der(NervesKey.device_cert(i2c)),
+        cacerts: [X509.Certificate.to_der(NervesKey.signer_cert(i2c)) | NervesHub.Certificate.ca_certs()],
+      ]
+
+      opts = [strategy: :one_for_one, name: Example.Supervisor]
+      children = [
+        {NervesHub.Supervisor, nerves_key_socket_opts}
+      ] ++ children(@target)
+      Supervisor.start_link(children, opts)
     end
   end
 ```

@@ -3,10 +3,10 @@ defmodule NervesHub.Certificate do
                |> NervesHubCLI.public_keys()
 
   ca_cert_path =
-  Application.get_env(:nerves_hub_core, :ca_certs) || System.get_env("NERVES_HUB_CA_CERTS") ||
-    :code.priv_dir(:nerves_hub_core)
-    |> to_string()
-    |> Path.join("ca_certs")
+    Application.get_env(:nerves_hub_core, :ca_certs) || System.get_env("NERVES_HUB_CA_CERTS") ||
+      :code.priv_dir(:nerves_hub_core)
+      |> to_string()
+      |> Path.join("ca_certs")
 
   ca_certs =
     ca_cert_path
@@ -16,7 +16,9 @@ defmodule NervesHub.Certificate do
       <<"-----BEGIN", _rest::binary>> = cert ->
         [{_, cert, _}] = :public_key.pem_decode(cert)
         cert
-      _ -> ""
+
+      _ ->
+        ""
     end)
 
   @ca_certs ca_certs
