@@ -67,7 +67,7 @@ places, such as [NervesKey](https://github.com/nerves-hub/nerves_key).
       {:ok, engine} = NervesKey.PKCS11.load_engine()
       {:ok, i2c} = ATECC508A.Transport.I2C.init([])
       nerves_key_socket_opts = [
-        key: NervesKey.PKCS11.private_key(engine),
+        key: NervesKey.PKCS11.private_key(engine, {:i2c, 1}),
         cert: X509.Certificate.to_der(NervesKey.device_cert(i2c)),
         cacerts: [X509.Certificate.to_der(NervesKey.signer_cert(i2c)) | NervesHub.Certificate.ca_certs()],
       ]
