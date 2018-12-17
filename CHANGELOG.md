@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.1
+
+* Bug fixes
+  * Use CA certificates from `:nerves_hub` instead of `:nerves_hub_core`.
+
 ## v0.2.0
 
 * Enhancements
