@@ -112,7 +112,11 @@ defmodule NervesHub.HTTPClient do
   end
 
   defp headers do
-    [{"Content-Type", "application/json"}]
+    [
+      {"Content-Type", "application/json"},
+      {"X-NervesHub-Dn", Nerves.Runtime.KV.get("nerves_serial_number")},
+      {"X-NervesHub-Uuid", Nerves.Runtime.KV.get_active("nerves_fw_uuid")}
+    ]
   end
 
   defp config do
