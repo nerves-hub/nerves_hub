@@ -18,7 +18,7 @@ defmodule NervesHub do
         spawn_monitor(HTTPFwupStream, :get, [http, url])
         update_receive()
 
-      {:ok, %{"update_available" => false}} ->
+      {:ok, %{"data" => %{"update_available" => false}}} ->
         :no_update
 
       {:error, _} = err ->
