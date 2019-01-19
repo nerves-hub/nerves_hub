@@ -5,14 +5,15 @@ defaults: &defaults
   environment:
     ENV: CI
     MIX_ENV: test
-    ELIXIR_VERSION: 1.7.3
+    ELIXIR_VERSION: 1.7.4-otp-21
+    LC_ALL: C.UTF-8
 
 install_elixir: &install_elixir
   run:
     name: Install Elixir
     command: |
-      wget https://github.com/elixir-lang/elixir/releases/download/v$ELIXIR_VERSION/Precompiled.zip
-      unzip -d /usr/local/elixir Precompiled.zip
+      wget https://repo.hex.pm/builds/elixir/v$ELIXIR_VERSION.zip
+      unzip -d /usr/local/elixir v$ELIXIR_VERSION.zip
       echo 'export PATH=/usr/local/elixir/bin:$PATH' >> $BASH_ENV
 
 install_hex_rebar: &install_hex_rebar
@@ -29,6 +30,7 @@ install_nerves_bootstrap: &install_nerves_bootstrap
       mix archive.install hex nerves_bootstrap "~> 1.0" --force
 
 version: 2
+
 jobs:
   build:
     <<: *defaults
@@ -37,14 +39,21 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - <<: *install_nerves_bootstrap
-      - run: mix local.hex --force
-      - run: mix local.rebar --force
+      - restore_cache:
+          keys:
+            - v1-mix-cache-{{ checksum "mix.lock" }}
       - run: mix deps.get
       # Check that compilation works. There aren't any meaningful tests to run
       # SUDO=true -> disable autodetection of a host build and the "helpful"
       # call to sudo
       - run: SUDO=true mix compile
       - run: mix format --check-formatted
+      - run: mix hex.build
       - run: mix docs
-      # Comment in when nerves_hub_cli is on hex
-      # - run: mix hex.build
+      - run: mix dialyzer --halt-exit-status
+      - save_cache:
+          key: v1-mix-cache-{{ checksum "mix.lock" }}
+          paths:
+            - _build
+            - deps
+
