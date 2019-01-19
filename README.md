@@ -3,42 +3,108 @@
 [![CircleCI](https://circleci.com/gh/nerves-hub/nerves_hub/tree/master.svg?style=svg)](https://circleci.com/gh/nerves-hub/nerves_hub/tree/master)
 [![Hex version](https://img.shields.io/hexpm/v/nerves_hub.svg "Hex version")](https://hex.pm/packages/nerves_hub)
 
-This directory contains the official client for interacting with the NervesHub
-server as a device.
+This is the official client for devices that want to receive firmware updates from NervesHub.
+
+## Overview
+
+NervesHub is an open-source firmware update server that works well with
+Nerves-based devices. A managed version is available at https://nerves-hub.org
+and it's possible to host your own.
+
+NervesHub provides many of the features that you'd expect in a firmware update
+server. Fundamentally, devices connect to the server either by polling at a
+pre-configured interval or by joining a long-lived Phoenix channel. If a
+firmware update is available, NervesHub will provide a URL to the device and the
+device can update immediately or when convenient.
+
+NervesHub does impose some requirements on devices and firmware that may require
+changes to your Nerves projects:
+
+* Firmware images are cryptographically signed (both NervesHub and devices
+  validate signatures)
+* Devices are identified by a unique serial number
+* Each device has its own SSL certificate for authentication with NervesHub
+
+These changes enable NervesHub to provide assurances that the firmware bits that
+you intend to install on a set of devices make it to those devices unaltered.
 
 ## Getting Started
 
+The following sections will walk you through updating your Nerves project to
+work with the [nerves-hub.org](https://nerves-hub.org) NervesHub server. Using
+your own NervesHub server will require setting URLs to point elsewhere and is
+not covered below to simplify first usage.
+
+Many of the steps below may feel manual, but they can and are automated by
+NervesHub users to set up automatic firmware updates from CI and to manufacture
+large numbers of devices.
+
+### Creating an account on nerves-hub.org
+
+The [nerves-hub.org](https://nerves-hub.org) NervesHub server is currently in
+limited beta so it does not allow new users to sign up. However, you found these
+docs and if you can use `mix` and endure some API changes, you can join us.
+
+In addition to the web site, NervesHub provides a command line interface (CLI).
+Some features are only available via the CLI. To enable the CLI in your project,
+add[nerves_hub_cli](https://hex.pm/packages/nerves_hub_cli) to your dependency
+list:
+
+```elixir
+  defp deps do
+    [
+      {:nerves, "~> 1.3", runtime: false},
+      {:nerves_hub_cli, "~> 0.1", runtime: false}
+      ...
+    ] ++ deps(@target)
+  end
+```
+
+Run `mix deps.get` to download the `nerves_hub_cli` dependency.
+
+Presumably you do not have an account yet. Create one by running:
+
+```bash
+mix nerves_hub.user register
+```
+
+If you already have an account, make sure that you have authenticated by running:
+
+```bash
+mix nerves_hub.user auth
+```
+
 ### Adding NervesHub to your project
 
-Start by adding `nerves_hub` to your target dependencies in your `mix.exs` file.
-NervesHub uses SSL certificates to secure communication between the device and
-the server. It is important that the time on the device is set for SSL to
-function properly. If you are not already setting the time, you can also include
-`nerves_time`.
+The first step is to add `nerves_hub` to your target dependencies in your
+project's `mix.exs`. Since NervesHub uses SSL certificates, the time must be set
+on the device or certificate validity checks will fail. If you're not already
+setting the time, add [`nerves_time`](https://hex.pm/packages/nerves_time) to
+your dependencies. For example:
 
 ```elixir
   defp deps(target) do
     [
-      {:nerves_runtime, "~> 0.6"},
-      {:nerves_init_gadget, "~> 0.4"},
-      {:nerves_hub, "~> 0.1"}
+      {:nerves_runtime, "~> 0.9"},
+      {:nerves_hub, "~> 0.1"},
+      {:nerves_time, "~> 0.2"},
+      ...
     ] ++ system(target)
   end
 ```
 
-Update your config for `:nerves` `:firmware` to delegate `:provisioning` to
-`:nerves_hub`. This will be helpful later on when programming the firmware on a
-device for the first time.
+Next, update your `config.exs` so that the `nerves_hub` library can help
+provision devices. Do this by adding `provisioning: :nerves_hub` to the
+`:nerves, :firmware` option like this:
 
 ```elixir
 config :nerves, :firmware,
-  rootfs_overlay: "rootfs_overlay",
   provisioning: :nerves_hub
 ```
 
-Make sure your device connects automatically to
-[nerves-hub.org](https://nerves-hub.org) by adding `NervesHub.Supervisor` to your
-main application supervisor:
+The library won't connect to [nerves-hub.org](https://nerves-hub.org) unless
+requested. The easiest way is to add `NervesHub.Supervisor` to your main
+application supervisor:
 
 ```elixir
   defmodule Example.Application do
@@ -56,7 +122,7 @@ main application supervisor:
 ```
 
 SSL options can be configured by passing them into the NervesHub supervisor.
-This is useful for applications that store their ssl credentials in differnt
+This is useful for applications that store their ssl credentials in different
 places, such as [NervesKey](https://github.com/nerves-hub/nerves_key).
 
 ```elixir
@@ -79,37 +145,6 @@ places, such as [NervesKey](https://github.com/nerves-hub/nerves_key).
       Supervisor.start_link(children, opts)
     end
   end
-```
-
-### Setting up the CLI
-
-While you can use the [NervesHub](https://nerves-hub.org) website to manage
-devices, many operations are more convenient when run through the CLI. We
-recommend adding the [nerves_hub_cli](https://hex.pm/packages/nerves_hub_cli)
-package to your dependency list as follows:
-
-```elixir
-  defp deps do
-    [
-      {:nerves, "~> 1.3", runtime: false},
-      {:nerves_hub_cli, "~> 0.1", runtime: false}
-      ...
-    ] ++ deps(@target)
-  end
-```
-
-Run `mix deps.get` to download the `nerves_hub_cli` dependency.
-
-A NervesHub account is required to use the CLI. Create a new account by running:
-
-```bash
-mix nerves_hub.user register
-```
-
-If you have an account, authenticate by running:
-
-```bash
-mix nerves_hub.user auth
 ```
 
 ### Creating a NervesHub product
@@ -204,39 +239,6 @@ Firmware can also be signed while publishing:
 mix nerves_hub.firmware publish --key devkey
 ```
 
-### Conditionally applying updates
-
-Applying an update right when it is published is not always a perfect strategy.
-NervesHub allows a custom `NervesHub.Client` for this. If a client returns a bad
-value, or raises an exception, the client will `apply` the action. This is to
-prevent bad code from being irrecoverable.
-
-Configure NervesHub
-```elixir
-config :nerves_hub, client: MyApp.NervesHubClient
-```
-
-Implement a client
-```elixir
-defmodule MyApp.NervesHubClient do
-   @behaviour NervesHub.Client
-
-   # May return:
-   #  * `:apply` - apply the action immediately
-   #  * `:ignore` - don't apply the action, don't ask again.
-   #  * `{:reschedule, timeout_in_milliseconds}` - call this function again later.
-
-   @impl NervesHub.Client
-   def update_available(data) do
-    if SomeInternalAPI.is_now_a_good_time_to_update?(data) do
-      :apply
-    else
-      {:reschedule, 60_000}
-    end
-   end
-end
-```
-
 ### Initializing devices
 
 In this example we will create a device with a hardware identifier `1234`.  The
@@ -248,7 +250,7 @@ connection with the NervesHub server.
 ```bash
 $ mix nerves_hub.device create
 
-NervesHub org: nerveshub
+NervesHub organization: nerveshub
 identifier: 1234
 description: test-1234
 tags: qa
@@ -302,7 +304,7 @@ In this example we will create a new deployment for our test group using firmwar
 ```bash
 mix nerves_hub.deployment create
 
-NervesHub org: nerveshub
+NervesHub organization: nerveshub
 Deployment name: qa_deployment
 firmware uuid: 1cbecdbb-aa7d-5aee-4ba2-864d518417df
 version condition:
@@ -330,4 +332,37 @@ We can publish, sign, and deploy firmware in a single command now.
 
 ```bash
 mix nerves_hub.firmware publish --key devkey --deploy qa_deployment
+```
+
+### Conditionally applying updates
+
+It's not always appropriate to apply a firmware update immediately.
+Custom logic can be added to the device by implementing the `NervesHub.Client` behaviour and telling the NervesHub OTP application about it.
+
+Here's an example implementation:
+
+```elixir
+defmodule MyApp.NervesHubClient do
+   @behaviour NervesHub.Client
+
+   # May return:
+   #  * `:apply` - apply the action immediately
+   #  * `:ignore` - don't apply the action, don't ask again.
+   #  * `{:reschedule, timeout_in_milliseconds}` - call this function again later.
+
+   @impl NervesHub.Client
+   def update_available(data) do
+    if SomeInternalAPI.is_now_a_good_time_to_update?(data) do
+      :apply
+    else
+      {:reschedule, 60_000}
+    end
+   end
+end
+```
+
+To have NervesHub invoke it, update your `config.exs` as follows:
+
+```elixir
+config :nerves_hub, client: MyApp.NervesHubClient
 ```

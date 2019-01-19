@@ -1,7 +1,8 @@
 defmodule NervesHub.Client.Default do
   @moduledoc """
-  Default Client implementation.
-  Always applies an update. Never Reschedules
+  Default NervesHub.Client implementation
+
+  This client always accepts an update.
   """
 
   @behaviour NervesHub.Client
