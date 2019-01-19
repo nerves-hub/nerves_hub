@@ -43,6 +43,7 @@ defmodule NervesHub.MixProject do
       {:nerves_runtime, "~> 0.8"},
       {:nerves_hub_cli, "~> 0.5", runtime: false},
       {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:fwup, "~> 0.3.0"}
     ]
   end
