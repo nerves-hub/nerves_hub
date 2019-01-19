@@ -28,7 +28,6 @@ defmodule NervesHub.MixProject do
 
   defp package do
     [
-      maintainers: ["Justin Schneck", "Frank Hunleth"],
       licenses: ["Apache-2.0"],
       links: %{"GitHub" => "https://github.com/nerves-hub/nerves_hub"}
     ]
