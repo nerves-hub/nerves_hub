@@ -30,31 +30,25 @@ defmodule NervesHub.ClientTest do
     assert Client.handle_error(ClientMock, :data) == :ok
   end
 
-  describe "apply_wrap/3" do
-    test "normal" do
-      Mox.expect(ClientMock, :handle_fwup_message, fn :data -> :ok end)
-      assert Client.apply_wrap(ClientMock, :handle_fwup_message, [:data]) == :ok
-    end
-
+  describe "apply_wrap doesn't propagate failures" do
     test "error" do
       Mox.expect(ClientMock, :handle_fwup_message, fn :data -> raise :something end)
-
-      assert Client.apply_wrap(ClientMock, :handle_fwup_message, [:data]) == {:error, :undef}
+      assert Client.handle_fwup_message(ClientMock, :data) == :ok
     end
 
     test "exit" do
       Mox.expect(ClientMock, :handle_fwup_message, fn :data -> exit(:reason) end)
-      assert Client.apply_wrap(ClientMock, :handle_fwup_message, [:data]) == {:exit, :reason}
+      assert Client.handle_fwup_message(ClientMock, :data) == :ok
     end
 
     test "throw" do
       Mox.expect(ClientMock, :handle_fwup_message, fn :data -> throw(:reason) end)
-      assert Client.apply_wrap(ClientMock, :handle_fwup_message, [:data]) == :reason
+      assert Client.handle_fwup_message(ClientMock, :data) == :ok
     end
 
     test "exception" do
       Mox.expect(ClientMock, :handle_fwup_message, fn :data -> Not.real() end)
-      assert Client.apply_wrap(ClientMock, :handle_fwup_message, [:data]) == {:error, :undef}
+      assert Client.handle_fwup_message(ClientMock, :data) == :ok
     end
   end
 end
