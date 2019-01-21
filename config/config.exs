@@ -52,3 +52,18 @@ config :nerves_runtime, :modules, [
 config :nerves_runtime, :kernel, autoload_modules: false
 
 config :nerves_runtime, target: "host"
+
+case Mix.env() do
+  :dev ->
+    config :mix_test_watch,
+      clear: true
+
+  :test ->
+    config :nerves_hub,
+      client: NervesHub.ClientMock,
+      http_client: NervesHub.HTTPClient.Mock,
+      rejoin_after: 0
+
+  :prod ->
+    :ok
+end
