@@ -3,6 +3,9 @@ defmodule NervesHub.FirmwareChannel do
   require Logger
 
   alias NervesHub.{Client, HTTPFwupStream}
+
+  @rejoin_after Application.get_env(:nerves_hub, :rejoin_after, 5_000)
+
   @client Application.get_env(:nerves_hub, :client, Client.Default)
 
   def topic do
@@ -37,7 +40,7 @@ defmodule NervesHub.FirmwareChannel do
   end
 
   def handle_close(_payload, state) do
-    Process.send_after(self(), :rejoin, 5_000)
+    Process.send_after(self(), :rejoin, @rejoin_after)
     {:noreply, state}
   end
 
