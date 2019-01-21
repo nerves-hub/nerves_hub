@@ -43,10 +43,10 @@ jobs:
           keys:
             - v1-mix-cache-{{ checksum "mix.lock" }}
       - run: mix deps.get
-      # Check that compilation works. There aren't any meaningful tests to run
       # SUDO=true -> disable autodetection of a host build and the "helpful"
       # call to sudo
       - run: SUDO=true mix compile
+      - run: mix test
       - run: mix format --check-formatted
       - run: mix hex.build
       - run: mix docs
