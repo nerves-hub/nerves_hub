@@ -24,5 +24,5 @@ defmodule NervesHub.Runtime do
   @callback install_device_path() :: Path.t()
 
   @callback device_cert() :: binary()
-  @callback device_key() :: binary()
+  @callback device_key() :: {:ECPrivateKey, binary()} | map()
 end

@@ -16,6 +16,7 @@ defmodule NervesHub.Runtime.NervesKey do
   defdelegate running_firmware_uuid(), to: NervesHub.Runtime.NervesKV
 
   @impl true
+  @spec reboot() :: no_return()
   defdelegate reboot(), to: NervesHub.Runtime.NervesKV
 
   @impl true

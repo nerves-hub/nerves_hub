@@ -9,6 +9,7 @@ defmodule NervesHub.MixProject do
       deps: deps(),
       description: description(),
       docs: [main: "readme", extras: ["README.md"]],
+      dialyzer: [plt_add_apps: [:nerves_key, :nerves_key_pkcs11, :atecc508a]],
       elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),

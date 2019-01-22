@@ -17,6 +17,7 @@ defmodule NervesHub.Runtime.NervesKV do
   end
 
   @impl true
+  @spec reboot() :: no_return()
   def reboot() do
     Nerves.Runtime.reboot()
   end
