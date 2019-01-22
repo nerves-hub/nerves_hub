@@ -14,15 +14,6 @@ defmodule NervesHub.Certificate do
 
   @ca_certs ca_certs
 
-  def pem_to_der(nil), do: <<>>
-
-  def pem_to_der(cert) do
-    case X509.Certificate.from_pem(cert) do
-      {:error, :not_found} -> <<>>
-      {:ok, decoded} -> X509.Certificate.to_der(decoded)
-    end
-  end
-
   def ca_certs() do
     @ca_certs
   end

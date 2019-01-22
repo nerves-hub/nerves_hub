@@ -41,11 +41,20 @@ defmodule NervesHub.Runtime do
   @key "nerves_hub_key"
 
   def device_cert() do
-    Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()
+    Nerves.Runtime.KV.get(@cert) |> pem_to_der()
   end
 
   def device_key() do
-    key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
+    key = Nerves.Runtime.KV.get(@key) |> pem_to_der()
     {:ECPrivateKey, key}
+  end
+
+  defp pem_to_der(nil), do: <<>>
+
+  defp pem_to_der(cert) do
+    case X509.Certificate.from_pem(cert) do
+      {:error, :not_found} -> <<>>
+      {:ok, decoded} -> X509.Certificate.to_der(decoded)
+    end
   end
 end
