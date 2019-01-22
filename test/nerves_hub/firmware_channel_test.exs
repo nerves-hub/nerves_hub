@@ -8,7 +8,7 @@ defmodule NervesHub.Channel.FirmwareChannelTest do
   setup context, do: Mox.verify_on_exit!(context)
 
   test "topic/0" do
-    fw_uuid = NervesHub.Runtime.running_firmware_uuid()
+    fw_uuid = NervesHub.Runtime.NervesKV.running_firmware_uuid()
     assert FirmwareChannel.topic() == "firmware:#{fw_uuid}"
   end
 

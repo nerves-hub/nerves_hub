@@ -17,6 +17,8 @@ defmodule NervesHub.HTTPFwupStream do
 
   require Logger
 
+  @runtime Application.get_env(:nerves_hub, :runtime)
+
   @redirect_status_codes [301, 302, 303, 307, 308]
 
   def start_link(cb) do
@@ -33,7 +35,7 @@ defmodule NervesHub.HTTPFwupStream do
   end
 
   def init([cb]) do
-    devpath = NervesHub.Runtime.install_device_path()
+    devpath = @runtime.install_device_path()
     fwup_keys = NervesHub.Certificate.fwup_public_keys()
 
     if fwup_keys == [] do

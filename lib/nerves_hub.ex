@@ -3,6 +3,8 @@ defmodule NervesHub do
 
   alias NervesHub.{FirmwareChannel, HTTPClient, HTTPFwupStream, Client}
 
+  @runtime Application.get_env(:nerves_hub, :runtime)
+
   def connect() do
     PhoenixChannelClient.join(FirmwareChannel)
   end
@@ -30,7 +32,7 @@ defmodule NervesHub do
       {:fwup, {:ok, 0, message}} ->
         Logger.info("[NervesHub] Firmware download complete")
         _ = Client.dispatch_fwup_message(message)
-        NervesHub.Runtime.reboot()
+        @runtime.reboot()
 
       # Allow client to handle other FWUP message.
       {:fwup, msg} ->

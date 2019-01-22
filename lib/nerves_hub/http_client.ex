@@ -11,8 +11,8 @@ defmodule NervesHub.HTTPClient do
 
   @callback request(method(), url(), [header()], body(), opts()) :: {:ok, %{}} | {:error, any()}
 
-  @host "device.nerves-hub.org"
   @client Application.get_env(:nerves_hub, :http_client, NervesHub.HTTPClient.Default)
+  @runtime Application.get_env(:nerves_hub, :runtime)
 
   def me, do: request(:get, "/device/me", [])
 
@@ -45,10 +45,18 @@ defmodule NervesHub.HTTPClient do
   defp ssl_options() do
     [
       cacerts: Certificate.ca_certs(),
-      cert: NervesHub.Runtime.device_cert(),
-      key: NervesHub.Runtime.device_key(),
-      server_name_indication: to_charlist(@host)
+      cert: @runtime.device_cert(),
+      key: @runtime.device_key(),
+      server_name_indication: sni()
     ]
+  end
+
+  defp sni() do
+    case Application.get_env(:nerves_hub, :server_name_indication) do
+      nil -> to_charlist(Application.get_env(:nerves_hub, :device_host))
+      false -> false
+      other -> to_charlist(other)
+    end
   end
 
   defp endpoint() do
@@ -60,8 +68,8 @@ defmodule NervesHub.HTTPClient do
   defp headers() do
     [
       {"Content-Type", "application/json"},
-      {"X-NervesHub-Dn", NervesHub.Runtime.serial_number()},
-      {"X-NervesHub-Uuid", NervesHub.Runtime.running_firmware_uuid()}
+      {"X-NervesHub-Dn", @runtime.serial_number()},
+      {"X-NervesHub-Uuid", @runtime.running_firmware_uuid()}
     ]
   end
 end

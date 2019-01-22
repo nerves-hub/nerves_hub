@@ -2,6 +2,7 @@ defmodule NervesHub.Channel.Config do
   alias NervesHub.Certificate
 
   @moduledoc false
+  @runtime Application.get_env(:nerves_hub, :runtime)
 
   @channel_opts [:device_host, :device_port, :cacerts, :server_name_indication]
 
@@ -43,7 +44,7 @@ defmodule NervesHub.Channel.Config do
     cond do
       opts[:certfile] != nil -> {:certfile, opts[:certfile]}
       opts[:cert] != nil -> {:cert, opts[:cert]}
-      true -> {:cert, NervesHub.Runtime.device_cert()}
+      true -> {:cert, @runtime.device_cert()}
     end
   end
 
@@ -56,7 +57,7 @@ defmodule NervesHub.Channel.Config do
         {:key, opts[:key]}
 
       true ->
-        {:key, NervesHub.Runtime.device_key()}
+        {:key, @runtime.device_key()}
     end
   end
 

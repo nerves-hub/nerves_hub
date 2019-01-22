@@ -33,7 +33,8 @@ defmodule NervesHub.MixProject do
         rejoin_after: 5_000,
         fwup_public_keys: [],
         cacerts: nil,
-        http_client: NervesHub.HTTPClient.Default
+        http_client: NervesHub.HTTPClient.Default,
+        runtime: NervesHub.Runtime.NervesKV
       ]
     ]
   end
@@ -63,6 +64,8 @@ defmodule NervesHub.MixProject do
       {:jason, "~> 1.0"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:mox, "~> 0.4", only: :test},
+      {:nerves_key, "~> 0.3", optional: true},
+      {:nerves_key_pkcs11, "~> 0.1", optional: true},
       {:nerves_hub_cli, "~> 0.6.0", runtime: false},
       {:nerves_runtime, "~> 0.8"},
       {:phoenix_channel_client, "~> 0.4"},
@@ -71,3 +74,7 @@ defmodule NervesHub.MixProject do
     ]
   end
 end
+
+Enum.each(NervesHub.MixProject.application()[:env], fn {k, v} ->
+  Application.put_env(:nerves_hub, k, v)
+end)

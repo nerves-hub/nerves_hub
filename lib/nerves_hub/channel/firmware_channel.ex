@@ -4,10 +4,12 @@ defmodule NervesHub.Channel.FirmwareChannel do
 
   @moduledoc false
 
+  @runtime Application.get_env(:nerves_hub, :runtime)
+
   alias NervesHub.{Client, HTTPFwupStream}
 
   def topic() do
-    "firmware:" <> NervesHub.Runtime.running_firmware_uuid()
+    "firmware:" <> @runtime.running_firmware_uuid()
   end
 
   @impl true
@@ -53,7 +55,7 @@ defmodule NervesHub.Channel.FirmwareChannel do
   def handle_info({:fwup, {:ok, 0, message}}, state) do
     Logger.info("[NervesHub] FWUP Finished")
     _ = Client.dispatch_fwup_message(message)
-    NervesHub.Runtime.reboot()
+    @runtime.reboot()
     {:noreply, state}
   end
 
