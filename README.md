@@ -314,7 +314,7 @@ You can list the firmware on NervesHub by calling:
 ```bash
 mix nerves_hub.firmware list
 
-Firmwares:
+Firmware:
 ------------
   product:      example
   version:      0.3.0
