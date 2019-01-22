@@ -5,7 +5,7 @@ defmodule NervesHub.Channel.FirmwareChannel do
   alias NervesHub.{Client, HTTPFwupStream}
 
   def topic() do
-    "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")
+    "firmware:" <> NervesHub.Runtime.running_firmware_uuid()
   end
 
   @impl true
