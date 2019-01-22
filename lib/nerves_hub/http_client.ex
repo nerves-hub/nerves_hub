@@ -12,8 +12,6 @@ defmodule NervesHub.HTTPClient do
   @callback request(method(), url(), [header()], body(), opts()) :: {:ok, %{}} | {:error, any()}
 
   @host "device.nerves-hub.org"
-  @cert "nerves_hub_cert"
-  @key "nerves_hub_key"
   @client Application.get_env(:nerves_hub, :http_client, NervesHub.HTTPClient.Default)
 
   def me, do: request(:get, "/device/me", [])
@@ -45,13 +43,10 @@ defmodule NervesHub.HTTPClient do
   end
 
   defp ssl_options() do
-    cert = Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()
-    key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
-
     [
       cacerts: Certificate.ca_certs(),
-      cert: cert,
-      key: {:ECPrivateKey, key},
+      cert: NervesHub.Runtime.device_cert(),
+      key: NervesHub.Runtime.device_key(),
       server_name_indication: to_charlist(@host)
     ]
   end

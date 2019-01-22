@@ -30,7 +30,7 @@ defmodule NervesHub do
       {:fwup, {:ok, 0, message}} ->
         Logger.info("[NervesHub] Firmware download complete")
         _ = Client.dispatch_fwup_message(message)
-        Nerves.Runtime.reboot()
+        NervesHub.Runtime.reboot()
 
       # Allow client to handle other FWUP message.
       {:fwup, msg} ->

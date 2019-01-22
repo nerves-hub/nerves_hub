@@ -33,7 +33,7 @@ defmodule NervesHub.HTTPFwupStream do
   end
 
   def init([cb]) do
-    devpath = Nerves.Runtime.KV.get("nerves_fw_devpath") || "/dev/mmcblk0"
+    devpath = NervesHub.Runtime.install_device_path()
     args = ["--apply", "--no-unmount", "-d", devpath, "--task", "upgrade"]
 
     fwup_public_keys = NervesHub.Certificate.public_keys()

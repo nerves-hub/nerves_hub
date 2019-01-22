@@ -51,7 +51,7 @@ defmodule NervesHub.Channel.FirmwareChannel do
   def handle_info({:fwup, {:ok, 0, message}}, state) do
     Logger.info("[NervesHub] FWUP Finished")
     _ = Client.dispatch_fwup_message(message)
-    Nerves.Runtime.reboot()
+    NervesHub.Runtime.reboot()
     {:noreply, state}
   end
 

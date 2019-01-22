@@ -43,7 +43,7 @@ defmodule NervesHub.Channel.Config do
     cond do
       opts[:certfile] != nil -> {:certfile, opts[:certfile]}
       opts[:cert] != nil -> {:cert, opts[:cert]}
-      true -> {:cert, Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()}
+      true -> {:cert, NervesHub.Runtime.device_cert()}
     end
   end
 
@@ -56,8 +56,7 @@ defmodule NervesHub.Channel.Config do
         {:key, opts[:key]}
 
       true ->
-        key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
-        {:key, {:ECPrivateKey, key}}
+        {:key, NervesHub.Runtime.device_key()
     end
   end
 
