@@ -3,13 +3,11 @@ defmodule NervesHub do
 
   alias NervesHub.{FirmwareChannel, HTTPClient, HTTPFwupStream, Client}
 
-  @client Application.get_env(:nerves_hub, :client, Client.Default)
-
-  def connect do
+  def connect() do
     PhoenixChannelClient.join(FirmwareChannel)
   end
 
-  def update do
+  def update() do
     case HTTPClient.update() do
       {:ok, %{"data" => %{"update_available" => true, "firmware_url" => url}}} ->
         Logger.info("[NervesHub] Downloading firmware: #{url}")
@@ -31,16 +29,16 @@ defmodule NervesHub do
       # Reboot when FWUP is done applying the update.
       {:fwup, {:ok, 0, message}} ->
         Logger.info("[NervesHub] Firmware download complete")
-        _ = Client.handle_fwup_message(@client, message)
+        _ = Client.dispatch_fwup_message(message)
         Nerves.Runtime.reboot()
 
       # Allow client to handle other FWUP message.
       {:fwup, msg} ->
-        _ = Client.handle_fwup_message(@client, msg)
+        _ = Client.dispatch_fwup_message(msg)
         update_receive()
 
       {:http_error, error} ->
-        _ = Client.handle_error(@client, error)
+        _ = Client.dispatch_error(error)
         {:error, {:http_error, error}}
 
       # If the HTTP stream finishes before fwup, just
@@ -51,7 +49,7 @@ defmodule NervesHub do
       # If the HTTP stream fails with an error,
       # return
       {:DOWN, _, :process, _, error} ->
-        _ = Client.handle_error(@client, error)
+        _ = Client.dispatch_error(error)
         error
     end
   end

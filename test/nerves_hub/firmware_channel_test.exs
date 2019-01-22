@@ -1,6 +1,7 @@
-defmodule NervesHub.FirmwareChannelTest do
+defmodule NervesHub.Channel.FirmwareChannelTest do
   use ExUnit.Case, async: true
-  alias NervesHub.{ClientMock, FirmwareChannel}
+  alias NervesHub.ClientMock
+  alias NervesHub.Channel.FirmwareChannel
 
   doctest FirmwareChannel
 

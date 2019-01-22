@@ -26,7 +26,15 @@ defmodule NervesHub.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      env: [
+        client: NervesHub.Client.Default,
+        device_host: "device.nerves-hub.org",
+        device_port: 443,
+        rejoin_after: 5_000,
+        public_keys: [],
+        cacerts: nil,
+        http_client: NervesHub.HTTPClient.Default
+      ]
     ]
   end
 
@@ -58,7 +66,8 @@ defmodule NervesHub.MixProject do
       {:nerves_hub_cli, "~> 0.6.0", runtime: false},
       {:nerves_runtime, "~> 0.8"},
       {:phoenix_channel_client, "~> 0.4"},
-      {:websocket_client, "~> 1.3"}
+      {:websocket_client, "~> 1.3"},
+      {:x509, "~> 0.5"}
     ]
   end
 end

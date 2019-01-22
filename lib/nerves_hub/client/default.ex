@@ -1,34 +1,38 @@
 defmodule NervesHub.Client.Default do
   @moduledoc """
-  Default NervesHub.Client implementation
+  This is the default NervesHub.Client implementation.
 
-  This client always accepts an update.
+  This client always accepts an update and logs notification.
   """
 
   @behaviour NervesHub.Client
   require Logger
 
-  @impl NervesHub.Client
+  @impl true
   def update_available(_), do: :apply
 
-  @impl NervesHub.Client
+  @impl true
   def handle_fwup_message({:progress, percent}) when rem(percent, 25) == 0 do
-    Logger.debug("FWUP PROG: #{percent}%")
+    Logger.debug("Firmware update progress: #{percent}%")
   end
 
+  @impl true
   def handle_fwup_message({:error, _, message}) do
-    Logger.error("FWUP ERROR: #{message}")
+    Logger.error("Firmware update error: #{message}")
   end
 
+  @impl true
   def handle_fwup_message({:warning, _, message}) do
-    Logger.warn("FWUP WARN: #{message}")
+    Logger.warn("Firmware update warning: #{message}")
   end
 
+  @impl true
   def handle_fwup_message(_fwup_message) do
+    # Ignore other reports
     :ok
   end
 
-  @impl NervesHub.Client
+  @impl true
   def handle_error(error) do
     Logger.warn("Firmware stream error: #{inspect(error)}")
   end

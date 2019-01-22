@@ -2,7 +2,6 @@ defmodule NervesHub.HTTPClient do
   @moduledoc false
 
   alias NervesHub.Certificate
-  alias NervesHub.HTTPClient.Default
 
   @type method :: :get | :put | :post
   @type url :: binary()
@@ -13,10 +12,9 @@ defmodule NervesHub.HTTPClient do
   @callback request(method(), url(), [header()], body(), opts()) :: {:ok, %{}} | {:error, any()}
 
   @host "device.nerves-hub.org"
-  @port 443
   @cert "nerves_hub_cert"
   @key "nerves_hub_key"
-  @client Application.get_env(:nerves_hub, :http_client, Default)
+  @client Application.get_env(:nerves_hub, :http_client, NervesHub.HTTPClient.Default)
 
   def me, do: request(:get, "/device/me", [])
 
@@ -58,22 +56,17 @@ defmodule NervesHub.HTTPClient do
     ]
   end
 
-  defp endpoint do
-    config = config()
-    host = config[:host]
-    port = config[:port]
+  defp endpoint() do
+    host = Application.get_env(:nerves_hub, :device_host)
+    port = Application.get_env(:nerves_hub, :device_port)
     "https://#{host}:#{port}"
   end
 
-  defp headers do
+  defp headers() do
     [
       {"Content-Type", "application/json"},
       {"X-NervesHub-Dn", Nerves.Runtime.KV.get("nerves_serial_number")},
       {"X-NervesHub-Uuid", Nerves.Runtime.KV.get_active("nerves_fw_uuid")}
     ]
-  end
-
-  defp config do
-    Application.get_env(:nerves_hub, __MODULE__, host: @host, port: @port)
   end
 end

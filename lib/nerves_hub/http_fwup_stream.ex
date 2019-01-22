@@ -4,7 +4,8 @@ defmodule NervesHub.HTTPFwupStream do
 
   a `callback` module is expected to be passed to `start_link/1`
 
-  messages will be recieved in the shape:
+  messages will be received in the shape:
+
   * `{:fwup_message, message}` - see the docs for
     [Fwup](https://hexdocs.pm/fwup/) for more info.
   * `{:http_error, {status_code, body}}`

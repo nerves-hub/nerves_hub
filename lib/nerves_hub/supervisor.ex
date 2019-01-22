@@ -1,7 +1,7 @@
 defmodule NervesHub.Supervisor do
   use Supervisor
 
-  alias NervesHub.{Socket, FirmwareChannel}
+  alias NervesHub.Channel.{Config, Socket, FirmwareChannel}
 
   @moduledoc """
   Supervisor for maintaining a channel connection to a NervesHub server
@@ -29,10 +29,16 @@ defmodule NervesHub.Supervisor do
 
   @doc """
   Start the NervesHub supervision tree
+
+  Options:
+
+  * `client` - Behaviour for handling firmware update events (defaults to `NervesHub.Client.Default`)
+  * `device_host` - Hostname or IP address of NervesHub server's endpoint that handling devices (default is "device.nerves-hub.org")
+  * `device_port` - Port number to use to connect to server (default is port 443)
   """
   @spec start_link(keyword()) :: Supervisor.on_start()
-  def start_link(socket_opts) do
-    case Supervisor.start_link(__MODULE__, socket_opts, name: __MODULE__) do
+  def start_link(opts) do
+    case Supervisor.start_link(__MODULE__, opts, name: __MODULE__) do
       {:ok, pid} ->
         NervesHub.connect()
         {:ok, pid}
@@ -43,11 +49,8 @@ defmodule NervesHub.Supervisor do
   end
 
   @impl true
-  def init(socket_opts) do
-    socket_opts =
-      Application.get_env(:nerves_hub, Socket, [])
-      |> Keyword.merge(socket_opts)
-      |> Socket.opts()
+  def init(opts) do
+    socket_opts = Config.derive_unspecified_options(opts)
 
     children = [
       {Socket, socket_opts},

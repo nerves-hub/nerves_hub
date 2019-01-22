@@ -1,45 +1,64 @@
-defmodule NervesHub.SocketTest do
+defmodule NervesHub.Channel.ConfigTest do
   use ExUnit.Case, async: true
-  alias NervesHub.{Certificate, Socket}
+  alias NervesHub.Channel.Config
+  alias NervesHub.Certificate
 
-  doctest Socket
+  doctest Config
 
   describe "opts" do
-    test "nil" do
-      assert Socket.opts(nil) == [
-               url: "wss://device.nerves-hub.org/socket/websocket",
+    test "empty" do
+      assert Config.derive_unspecified_options([]) == [
+               url: "wss://0.0.0.0:4001/socket/websocket",
                serializer: Jason,
                ssl_verify: :verify_peer,
                socket_opts: [
                  key: {:ECPrivateKey, ""},
                  cert: "",
                  cacerts: Certificate.ca_certs(),
-                 server_name_indication: 'device.nerves-hub.org'
-               ]
+                 server_name_indication: false
+               ],
+               device_port: 4001,
+               server_name_indication: false,
+               cacerts: nil,
+               device_host: "0.0.0.0"
              ]
     end
 
     test "custom" do
-      assert Socket.opts(cacerts: [:red]) == [
-               url: "wss://device.nerves-hub.org/socket/websocket",
+      assert Config.derive_unspecified_options(cacerts: [:red]) == [
+               url: "wss://0.0.0.0:4001/socket/websocket",
                serializer: Jason,
                ssl_verify: :verify_peer,
                socket_opts: [
                  key: {:ECPrivateKey, ""},
                  cert: "",
                  cacerts: [:red],
-                 server_name_indication: 'device.nerves-hub.org'
+                 server_name_indication: false
                ],
+               device_port: 4001,
+               server_name_indication: false,
+               device_host: "0.0.0.0",
                cacerts: [:red]
              ]
     end
-  end
 
-  test "cert/1" do
-    assert Socket.cert([]) == {:cert, ""}
-  end
-
-  test "key/1" do
-    assert Socket.key([]) == {:key, {:ECPrivateKey, ""}}
+    test "sni" do
+      assert Config.derive_unspecified_options(server_name_indication: "device.nerves-hub.org") ==
+               [
+                 url: "wss://0.0.0.0:4001/socket/websocket",
+                 serializer: Jason,
+                 ssl_verify: :verify_peer,
+                 socket_opts: [
+                   key: {:ECPrivateKey, ""},
+                   cert: "",
+                   cacerts: Certificate.ca_certs(),
+                   server_name_indication: 'device.nerves-hub.org'
+                 ],
+                 device_port: 4001,
+                 cacerts: nil,
+                 device_host: "0.0.0.0",
+                 server_name_indication: "device.nerves-hub.org"
+               ]
+    end
   end
 end

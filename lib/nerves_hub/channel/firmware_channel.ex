@@ -1,25 +1,24 @@
-defmodule NervesHub.FirmwareChannel do
+defmodule NervesHub.Channel.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
   alias NervesHub.{Client, HTTPFwupStream}
 
-  @rejoin_after Application.get_env(:nerves_hub, :rejoin_after, 5_000)
-
-  @client Application.get_env(:nerves_hub, :client, Client.Default)
-
-  def topic do
+  def topic() do
     "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")
   end
 
+  @impl true
   def handle_in("update", params, state) do
     {:noreply, maybe_update_firmware(params, state)}
   end
 
+  @impl true
   def handle_in(_event, _payload, state) do
     {:noreply, state}
   end
 
+  @impl true
   def handle_reply(
         {:ok, :join, %{"response" => response, "status" => "ok"}, _},
         state
@@ -27,52 +26,62 @@ defmodule NervesHub.FirmwareChannel do
     {:noreply, maybe_update_firmware(response, state)}
   end
 
+  @impl true
   def handle_reply(
         {:error, :join, %{"response" => %{"reason" => reason}, "status" => "error"}},
         state
       ) do
-    _ = Client.handle_error(@client, reason)
+    _ = Client.dispatch_error(reason)
     {:stop, reason, state}
   end
 
+  @impl true
   def handle_reply(_payload, state) do
     {:noreply, state}
   end
 
+  @impl true
   def handle_close(_payload, state) do
-    Process.send_after(self(), :rejoin, @rejoin_after)
+    rejoin_after = Application.get_env(:nerves_hub, :rejoin_after)
+    Process.send_after(self(), :rejoin, rejoin_after)
     {:noreply, state}
   end
 
+  @impl true
   def handle_info({:fwup, {:ok, 0, message}}, state) do
     Logger.info("[NervesHub] FWUP Finished")
-    _ = Client.handle_fwup_message(@client, message)
+    _ = Client.dispatch_fwup_message(message)
     Nerves.Runtime.reboot()
     {:noreply, state}
   end
 
+  @impl true
   def handle_info({:fwup, message}, state) do
-    _ = Client.handle_fwup_message(@client, message)
+    _ = Client.dispatch_fwup_message(message)
     {:noreply, state}
   end
 
+  @impl true
   def handle_info({:http_error, error}, state) do
     Logger.error("HTTP Stream Error: #{inspect(error)}")
-    _ = Client.handle_error(@client, error)
+    _ = Client.dispatch_error(error)
     {:noreply, state}
   end
 
+  @impl true
   def handle_info({:update_reschedule, response}, state) do
     {:noreply, maybe_update_firmware(response, state)}
   end
 
+  @impl true
   def handle_info({:DOWN, _, :process, _, :normal}, state) do
     {:noreply, state}
   end
 
+  @impl true
   def handle_info({:DOWN, _, :process, _, reason}, state) do
     Logger.error("HTTP Stream Error: #{inspect(reason)}")
-    _ = Client.handle_error(@client, reason)
+    _ = Client.dispatch_error(reason)
     {:stop, reason, state}
   end
 
@@ -85,7 +94,7 @@ defmodule NervesHub.FirmwareChannel do
     # possibly offload update decision to an external module.
     # This will allow application developers
     # to control exactly when an update is applied.
-    case Client.update_available(@client, data) do
+    case Client.dispatch_update_available(data) do
       :apply ->
         {:ok, http} = HTTPFwupStream.start_link(self())
         spawn_monitor(HTTPFwupStream, :get, [http, url])

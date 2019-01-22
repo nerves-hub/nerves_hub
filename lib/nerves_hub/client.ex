@@ -79,9 +79,9 @@ defmodule NervesHub.Client do
   @doc """
   This function is called internally by NervesHub to notify clients.
   """
-  @spec update_available(module(), update_data()) :: update_response()
-  def update_available(client, data) do
-    case apply_wrap(client, :update_available, [data]) do
+  @spec dispatch_update_available(update_data()) :: update_response()
+  def dispatch_update_available(data) do
+    case apply_wrap(:update_available, [data]) do
       :apply ->
         :apply
 
@@ -93,7 +93,7 @@ defmodule NervesHub.Client do
 
       wrong ->
         Logger.error(
-          "[NervesHub] Client: #{client}.update_available/1 bad return value: #{inspect(wrong)} Applying update."
+          "[NervesHub] Client: #{client()}.update_available/1 bad return value: #{inspect(wrong)} Applying update."
         )
 
         :apply
@@ -103,26 +103,30 @@ defmodule NervesHub.Client do
   @doc """
   This function is called internally by NervesHub to notify clients of fwup progress.
   """
-  @spec handle_fwup_message(module(), fwup_message()) :: :ok
-  def handle_fwup_message(client, data) do
-    _ = apply_wrap(client, :handle_fwup_message, [data])
+  @spec dispatch_fwup_message(fwup_message()) :: :ok
+  def dispatch_fwup_message(data) do
+    _ = apply_wrap(:handle_fwup_message, [data])
     :ok
   end
 
   @doc """
   This function is called internally by NervesHub to notify clients of fwup errors.
   """
-  @spec handle_error(module(), any()) :: :ok
-  def handle_error(client, data) do
-    _ = apply_wrap(client, :handle_error, [data])
+  @spec dispatch_error(any()) :: :ok
+  def dispatch_error(data) do
+    _ = apply_wrap(:handle_error, [data])
   end
 
   # Catches exceptions and exits
-  defp apply_wrap(client, function, args) do
-    apply(client, function, args)
+  defp apply_wrap(function, args) do
+    apply(client(), function, args)
   catch
     :error, reason -> {:error, reason}
     :exit, reason -> {:exit, reason}
     err -> err
+  end
+
+  defp client() do
+    Application.get_env(:nerves_hub, :client)
   end
 end

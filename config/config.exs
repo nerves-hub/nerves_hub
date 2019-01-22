@@ -11,16 +11,16 @@ config :nerves_hub_cli,
 
 # API HTTP connection.
 config :nerves_hub_core,
-  host: "0.0.0.0",
-  port: 4002
+  api_host: "0.0.0.0",
+  api_port: 4002
 
 # Device Websocket/Channel connection.
-config :nerves_hub, NervesHub.Socket, url: "wss://0.0.0.0:4001/socket/websocket"
+# config :nerves_hub, NervesHub.Socket, url: "wss://0.0.0.0:4001/socket/websocket"
 
 # Device HTTP connection.
-config :nerves_hub, NervesHub.HTTPClient,
-  host: "0.0.0.0",
-  port: 4001
+config :nerves_hub,
+  device_host: "0.0.0.0",
+  device_port: 4001
 
 # Shared Configuration.
 config :nerves_hub,
@@ -62,6 +62,7 @@ case Mix.env() do
     config :nerves_hub,
       client: NervesHub.ClientMock,
       http_client: NervesHub.HTTPClient.Mock,
+      server_name_indication: false,
       rejoin_after: 0
 
   :prod ->
