@@ -213,7 +213,7 @@ their atom name:
 
 ```elixir
 config :nerves_hub,
-  public_keys: [:devkey]
+  fwup_public_keys: [:devkey]
 ```
 
 If you have keys that cannot be stored locally, you will have to copy/paste

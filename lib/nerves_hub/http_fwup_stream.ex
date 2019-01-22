@@ -34,6 +34,14 @@ defmodule NervesHub.HTTPFwupStream do
 
   def init([cb]) do
     devpath = NervesHub.Runtime.install_device_path()
+    fwup_keys = NervesHub.Certificate.fwup_public_keys()
+
+    if fwup_keys == [] do
+      Logger.warn(
+        "No firmware signing public keys so not verifying signatures on firmware updates!"
+      )
+    end
+
     args = ["--apply", "--no-unmount", "-d", devpath, "--task", "upgrade"]
 
     fwup_public_keys = NervesHub.Certificate.public_keys()

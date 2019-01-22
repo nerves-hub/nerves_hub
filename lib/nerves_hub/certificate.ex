@@ -1,5 +1,5 @@
 defmodule NervesHub.Certificate do
-  @public_keys Application.get_env(:nerves_hub, :public_keys, [])
+  @public_keys Application.get_env(:nerves_hub, :fwup_public_keys, [])
                |> NervesHubCLI.resolve_fwup_public_keys()
 
   ca_cert_path =
@@ -27,7 +27,7 @@ defmodule NervesHub.Certificate do
     @ca_certs
   end
 
-  def public_keys() do
+  def fwup_public_keys() do
     @public_keys
   end
 end

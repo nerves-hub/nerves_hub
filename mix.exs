@@ -31,7 +31,7 @@ defmodule NervesHub.MixProject do
         device_host: "device.nerves-hub.org",
         device_port: 443,
         rejoin_after: 5_000,
-        public_keys: [],
+        fwup_public_keys: [],
         cacerts: nil,
         http_client: NervesHub.HTTPClient.Default
       ]
