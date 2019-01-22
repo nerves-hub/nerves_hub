@@ -1,6 +1,8 @@
 defmodule NervesHub.Channel.Config do
   alias NervesHub.Certificate
 
+  @moduledoc false
+
   @channel_opts [:device_host, :device_port, :cacerts, :server_name_indication]
 
   @doc """

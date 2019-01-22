@@ -2,7 +2,7 @@ defmodule NervesHub.Client.Default do
   @moduledoc """
   This is the default NervesHub.Client implementation.
 
-  This client always accepts an update and logs notification.
+  This client accepts update requests and logs firmware update notifications.
   """
 
   @behaviour NervesHub.Client

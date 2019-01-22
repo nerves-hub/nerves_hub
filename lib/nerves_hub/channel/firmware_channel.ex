@@ -2,6 +2,8 @@ defmodule NervesHub.Channel.FirmwareChannel do
   use PhoenixChannelClient
   require Logger
 
+  @moduledoc false
+
   alias NervesHub.{Client, HTTPFwupStream}
 
   def topic() do

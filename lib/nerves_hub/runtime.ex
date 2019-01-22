@@ -3,8 +3,6 @@ defmodule NervesHub.Runtime do
   Module for querying the device for runtime information
   """
 
-  alias NervesHub.Certificate
-
   @doc """
   Return this device's serial number
   """
