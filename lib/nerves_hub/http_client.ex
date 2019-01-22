@@ -60,7 +60,7 @@ defmodule NervesHub.HTTPClient do
   defp headers() do
     [
       {"Content-Type", "application/json"},
-      {"X-NervesHub-Dn", NervesHub.Runtime.serial_number() },
+      {"X-NervesHub-Dn", NervesHub.Runtime.serial_number()},
       {"X-NervesHub-Uuid", NervesHub.Runtime.running_firmware_uuid()}
     ]
   end

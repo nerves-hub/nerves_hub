@@ -2,8 +2,6 @@ defmodule NervesHub.Channel.Config do
   alias NervesHub.Certificate
 
   @channel_opts [:device_host, :device_port, :cacerts, :server_name_indication]
-  @cert "nerves_hub_cert"
-  @key "nerves_hub_key"
 
   @doc """
   This function derives additional options to control the Phoenix Channel Socket
@@ -56,7 +54,7 @@ defmodule NervesHub.Channel.Config do
         {:key, opts[:key]}
 
       true ->
-        {:key, NervesHub.Runtime.device_key()
+        {:key, NervesHub.Runtime.device_key()}
     end
   end
 
