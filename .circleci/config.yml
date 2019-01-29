@@ -48,7 +48,7 @@ jobs:
       - run: SUDO=true mix compile
       - run: mix test
       - run: mix format --check-formatted
-      - run: mix hex.build
+        #- run: mix hex.build
       - run: mix docs
       - run: mix dialyzer --halt-exit-status
       - save_cache:
