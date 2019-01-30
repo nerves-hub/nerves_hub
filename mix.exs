@@ -55,8 +55,7 @@ defmodule NervesHub.MixProject do
       {:jason, "~> 1.0"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:mox, "~> 0.4", only: :test},
-      # Remove github ref when nerves_hub_cli is released
-      {:nerves_hub_cli, "~> 0.5", github: "nerves-hub/nerves_hub_cli", runtime: false},
+      {:nerves_hub_cli, "~> 0.6.0", runtime: false},
       {:nerves_runtime, "~> 0.8"},
       {:phoenix_channel_client, "~> 0.4"},
       {:websocket_client, "~> 1.3"}
