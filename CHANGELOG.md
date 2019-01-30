@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0
+
+* Enhancements
+  * Add uuid and dn to http headers for polling requests
+
+* Bug fixes
+  * Fix crash when no updates were available
+
 ## v0.2.1
 
 * Bug fixes
