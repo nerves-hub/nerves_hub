@@ -197,14 +197,34 @@ mix nerves_hub.key create devkey
 ```
 
 On success, you'll see the public key. You can confirm using the NervesHub web
-interface that the signing key exists.
+interface that the public key exists. Private keys are never sent to the
+NervesHub server. NervesHub requires valid signatures from known keys on all
+firmware it distributes.
 
-Next, add the key's name to your `config.exs` so that it can be built into your
-firmware image:
+The next step is to make sure that the public key is embedded into the firmware
+image. This is important. The device uses this key to verify the firmware it
+receives from a NervesHub server before applying the update.  This protects the
+device against anyone tampering with the firmware image between when it was
+signed by you and when it is installed.
+
+All firmware signing public keys need to be added to your `config.exs`. Keys
+that are stored locally (like the one we just created) can be referred to by
+their atom name:
 
 ```elixir
 config :nerves_hub,
   public_keys: [:devkey]
+```
+
+If you have keys that cannot be stored locally, you will have to copy/paste
+their public key:
+
+```elixir
+config :nerves_hub,
+  public_keys: [
+    # devkey
+    "bM/O9+ykZhCWx8uZVgx0sU3f0JJX7mqnAVU9VGeuHr4="
+  ]
 ```
 
 The `nerves_hub` dependency converts key names to public keys at compile time.
@@ -216,6 +236,11 @@ change. Force it to recompile by running:
 mix deps.compile nerves_hub --force
 mix firmware
 ```
+
+While not shown here, you can export keys for safe storage. Additionally, key
+creation and firmware signing can be done outside of the `mix` tooling. The only
+part that is required is that the firmware signing public keys be added to your
+`config.exs` and to the NervesHub server.
 
 ### Publishing firmware
 
