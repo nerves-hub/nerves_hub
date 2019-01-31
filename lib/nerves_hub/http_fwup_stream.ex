@@ -35,8 +35,16 @@ defmodule NervesHub.HTTPFwupStream do
     devpath = Nerves.Runtime.KV.get("nerves_fw_devpath") || "/dev/mmcblk0"
     args = ["--apply", "--no-unmount", "-d", devpath, "--task", "upgrade"]
 
+    fwup_public_keys = NervesHub.Certificate.public_keys()
+
+    if fwup_public_keys == [] do
+      Logger.error("No fwup public keys were configured for nerves_hub.")
+      Logger.error("This means that firmware signatures are not being checked.")
+      Logger.error("nerves_hub won't allow this in the future.")
+    end
+
     args =
-      Enum.reduce(NervesHub.Certificate.public_keys(), args, fn public_key, args ->
+      Enum.reduce(fwup_public_keys, args, fn public_key, args ->
         args ++ ["--public-key", public_key]
       end)
 
