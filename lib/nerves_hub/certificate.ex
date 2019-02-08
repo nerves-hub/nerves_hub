@@ -1,5 +1,11 @@
 defmodule NervesHub.Certificate do
-  @public_keys Application.get_env(:nerves_hub, :public_keys, [])
+  # Get the fwup public keys from the app environment. Support the
+  # old name of `:public_keys` for now.
+  @public_keys Application.get_env(
+                 :nerves_hub,
+                 :fwup_public_keys,
+                 Application.get_env(:nerves_hub, :public_keys, [])
+               )
                |> NervesHubCLI.resolve_fwup_public_keys()
 
   ca_cert_path =
@@ -35,7 +41,12 @@ defmodule NervesHub.Certificate do
     @ca_certs
   end
 
+  @deprecated "Use fwup_public_keys/0 instead"
   def public_keys do
+    fwup_public_keys()
+  end
+
+  def fwup_public_keys do
     @public_keys
   end
 end

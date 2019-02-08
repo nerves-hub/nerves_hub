@@ -35,7 +35,7 @@ defmodule NervesHub.HTTPFwupStream do
     devpath = Nerves.Runtime.KV.get("nerves_fw_devpath") || "/dev/mmcblk0"
     args = ["--apply", "--no-unmount", "-d", devpath, "--task", "upgrade"]
 
-    fwup_public_keys = NervesHub.Certificate.public_keys()
+    fwup_public_keys = NervesHub.Certificate.fwup_public_keys()
 
     if fwup_public_keys == [] do
       Logger.error("No fwup public keys were configured for nerves_hub.")

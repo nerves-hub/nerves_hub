@@ -22,7 +22,7 @@ defmodule NervesHub.CertificateTest do
     for cert <- certs, do: assert(is_binary(cert))
   end
 
-  test "public_keys/0" do
-    assert is_list(Certificate.public_keys())
+  test "fwup_public_keys/0" do
+    assert is_list(Certificate.fwup_public_keys())
   end
 end

@@ -34,7 +34,7 @@ config :nerves_firmware_ssh,
   ]
 
 config :nerves_hub,
-  public_keys: [:test]
+  fwup_public_keys: [:test]
 
 ## Uncomment for local NervesHubWeb development
 
