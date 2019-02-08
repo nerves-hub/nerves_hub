@@ -60,8 +60,8 @@ defmodule NervesHub.HTTPClient do
 
   defp endpoint do
     config = config()
-    host = config[:host]
-    port = config[:port]
+    host = config[:device_api_host]
+    port = config[:device_api_port]
     "https://#{host}:#{port}"
   end
 
@@ -74,6 +74,6 @@ defmodule NervesHub.HTTPClient do
   end
 
   defp config do
-    Application.get_env(:nerves_hub, __MODULE__, host: @host, port: @port)
+    Application.get_env(:nerves_hub, __MODULE__, device_api_host: @host, device_api_port: @port)
   end
 end

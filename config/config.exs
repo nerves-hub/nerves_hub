@@ -19,8 +19,8 @@ config :nerves_hub, NervesHub.Socket, url: "wss://0.0.0.0:4001/socket/websocket"
 
 # Device HTTP connection.
 config :nerves_hub, NervesHub.HTTPClient,
-  host: "0.0.0.0",
-  port: 4001
+  device_api_host: "0.0.0.0",
+  device_api_port: 4001
 
 # Shared Configuration.
 config :nerves_hub,
