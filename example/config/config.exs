@@ -38,9 +38,9 @@ config :nerves_hub,
 
 ## Uncomment for local NervesHubWeb development
 
-# config :nerves_hub_cli, NervesHubCLI.API,
-#   host: "0.0.0.0",
-#   port: 4002
+# config :nerves_hub_core,
+#   api_host: "0.0.0.0",
+#   api_port: 4002
 
 # config :nerves_hub_cli,
 #   home: Path.expand("../.nerves-hub"),

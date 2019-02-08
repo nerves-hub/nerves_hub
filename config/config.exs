@@ -11,8 +11,8 @@ config :nerves_hub_cli,
 
 # API HTTP connection.
 config :nerves_hub_core,
-  host: "0.0.0.0",
-  port: 4002
+  api_host: "0.0.0.0",
+  api_port: 4002
 
 # Device Websocket/Channel connection.
 config :nerves_hub, NervesHub.Socket, url: "wss://0.0.0.0:4001/socket/websocket"
