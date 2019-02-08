@@ -5,8 +5,6 @@ defmodule NervesHub.Socket do
 
   @cert "nerves_hub_cert"
   @key "nerves_hub_key"
-  @server_name "device.nerves-hub.org"
-  @url "wss://" <> @server_name <> "/socket/websocket"
 
   def opts(nil), do: opts([])
 
@@ -16,19 +14,22 @@ defmodule NervesHub.Socket do
     {cert_key, cert_value} = cert(user_config)
     {key_key, key_value} = key(user_config)
 
-    sni = user_config[:server_name_indication] || @server_name
-    sni = if is_binary(sni), do: to_charlist(sni), else: sni
+    server_name = Application.get_env(:nerves_hub, :device_api_host)
+    server_port = Application.get_env(:nerves_hub, :device_api_port)
+    sni = Application.get_env(:nerves_hub, :device_api_sni)
+
+    url = "wss://#{server_name}:#{server_port}/socket/websocket"
 
     socket_opts =
       [
         cacerts: ca_certs,
-        server_name_indication: sni
+        server_name_indication: to_charlist(sni)
       ]
       |> Keyword.put(cert_key, cert_value)
       |> Keyword.put(key_key, key_value)
 
     default_config = [
-      url: @url,
+      url: url,
       serializer: Jason,
       ssl_verify: :verify_peer,
       socket_opts: socket_opts

@@ -7,7 +7,7 @@ defmodule NervesHub.SocketTest do
   describe "opts" do
     test "nil" do
       assert Socket.opts(nil) == [
-               url: "wss://device.nerves-hub.org/socket/websocket",
+               url: "wss://0.0.0.0:4001/socket/websocket",
                serializer: Jason,
                ssl_verify: :verify_peer,
                socket_opts: [
@@ -21,7 +21,7 @@ defmodule NervesHub.SocketTest do
 
     test "custom" do
       assert Socket.opts(cacerts: [:red]) == [
-               url: "wss://device.nerves-hub.org/socket/websocket",
+               url: "wss://0.0.0.0:4001/socket/websocket",
                serializer: Jason,
                ssl_verify: :verify_peer,
                socket_opts: [

@@ -26,6 +26,12 @@ defmodule NervesHub.MixProject do
 
   def application do
     [
+      env: [
+        device_api_host: "device.nerves-hub.org",
+        device_api_port: 443,
+        device_api_sni: "device.nerves-hub.org",
+        fwup_public_keys: []
+      ],
       extra_applications: [:logger]
     ]
   end

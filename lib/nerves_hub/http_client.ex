@@ -12,8 +12,6 @@ defmodule NervesHub.HTTPClient do
 
   @callback request(method(), url(), [header()], body(), opts()) :: {:ok, %{}} | {:error, any()}
 
-  @host "device.nerves-hub.org"
-  @port 443
   @cert "nerves_hub_cert"
   @key "nerves_hub_key"
   @client Application.get_env(:nerves_hub, :http_client, Default)
@@ -49,19 +47,19 @@ defmodule NervesHub.HTTPClient do
   defp ssl_options() do
     cert = Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()
     key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
+    sni = Application.get_env(:nerves_hub, :device_api_host)
 
     [
       cacerts: Certificate.ca_certs(),
       cert: cert,
       key: {:ECPrivateKey, key},
-      server_name_indication: to_charlist(@host)
+      server_name_indication: to_charlist(sni)
     ]
   end
 
   defp endpoint do
-    config = config()
-    host = config[:device_api_host]
-    port = config[:device_api_port]
+    host = Application.get_env(:nerves_hub, :device_api_host)
+    port = Application.get_env(:nerves_hub, :device_api_port)
     "https://#{host}:#{port}"
   end
 
@@ -71,9 +69,5 @@ defmodule NervesHub.HTTPClient do
       {"X-NervesHub-Dn", Nerves.Runtime.KV.get("nerves_serial_number")},
       {"X-NervesHub-Uuid", Nerves.Runtime.KV.get_active("nerves_fw_uuid")}
     ]
-  end
-
-  defp config do
-    Application.get_env(:nerves_hub, __MODULE__, device_api_host: @host, device_api_port: @port)
   end
 end
