@@ -16,24 +16,18 @@ defmodule NervesHub.Certificate do
     ca_cert_path
     |> File.ls!()
     |> Enum.map(&File.read!(Path.join(ca_cert_path, &1)))
-    |> Enum.map(fn
-      <<"-----BEGIN", _rest::binary>> = cert ->
-        [{_, cert, _}] = :public_key.pem_decode(cert)
-        cert
-
-      _ ->
-        ""
-    end)
+    |> Enum.map(&X509.Certificate.to_der(X509.Certificate.from_pem!(&1)))
 
   @ca_certs ca_certs
 
-  def pem_to_der(<<"-----BEGIN", _rest::binary>> = cert) do
-    [{_, cert, _}] = :public_key.pem_decode(cert)
-    cert
-  end
+  def pem_to_der(nil), do: <<>>
 
-  def pem_to_der(nil), do: ""
-  def pem_to_der(""), do: ""
+  def pem_to_der(cert) do
+    case X509.Certificate.from_pem(cert) do
+      {:error, :not_found} -> <<>>
+      {:ok, decoded} -> X509.Certificate.to_der(decoded)
+    end
+  end
 
   def ca_certs do
     @ca_certs
