@@ -8,8 +8,8 @@ This is the official client for devices that want to receive firmware updates fr
 ## Overview
 
 NervesHub is an open-source firmware update server that works well with
-Nerves-based devices. A managed version is available at https://nerves-hub.org
-and it's possible to host your own.
+Nerves-based devices. A managed version is available at
+[nerves-hub.org](https://nerves-hub.org) and it's possible to host your own.
 
 NervesHub provides many of the features that you'd expect in a firmware update
 server. Fundamentally, devices connect to the server either by polling at a
