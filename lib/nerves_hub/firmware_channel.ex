@@ -18,7 +18,7 @@ defmodule NervesHub.FirmwareChannel do
   end
 
   def join_params do
-    %{}
+    Nerves.Runtime.KV.get_all_active()
   end
 
   def init(opts) do
