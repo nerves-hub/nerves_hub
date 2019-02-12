@@ -10,11 +10,13 @@ defmodule NervesHub.SocketTest do
                url: "wss://0.0.0.0:4001/socket/websocket",
                serializer: Jason,
                ssl_verify: :verify_peer,
-               socket_opts: [
-                 key: {:ECPrivateKey, ""},
-                 cert: "",
-                 cacerts: Certificate.ca_certs(),
-                 server_name_indication: 'device.nerves-hub.org'
+               transport_opts: [
+                 socket_opts: [
+                   key: {:ECPrivateKey, ""},
+                   cert: "",
+                   cacerts: Certificate.ca_certs(),
+                   server_name_indication: 'device.nerves-hub.org'
+                 ]
                ]
              ]
     end
@@ -24,11 +26,13 @@ defmodule NervesHub.SocketTest do
                url: "wss://0.0.0.0:4001/socket/websocket",
                serializer: Jason,
                ssl_verify: :verify_peer,
-               socket_opts: [
-                 key: {:ECPrivateKey, ""},
-                 cert: "",
-                 cacerts: [:red],
-                 server_name_indication: 'device.nerves-hub.org'
+               transport_opts: [
+                 socket_opts: [
+                   key: {:ECPrivateKey, ""},
+                   cert: "",
+                   cacerts: [:red],
+                   server_name_indication: 'device.nerves-hub.org'
+                 ]
                ],
                cacerts: [:red]
              ]

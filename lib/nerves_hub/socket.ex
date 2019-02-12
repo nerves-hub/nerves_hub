@@ -1,6 +1,4 @@
 defmodule NervesHub.Socket do
-  use PhoenixChannelClient.Socket, otp_app: :nerves_hub
-
   alias NervesHub.Certificate
 
   @cert "nerves_hub_cert"
@@ -32,7 +30,7 @@ defmodule NervesHub.Socket do
       url: url,
       serializer: Jason,
       ssl_verify: :verify_peer,
-      socket_opts: socket_opts
+      transport_opts: [socket_opts: socket_opts]
     ]
 
     Keyword.merge(default_config, user_config)
@@ -55,8 +53,16 @@ defmodule NervesHub.Socket do
         {:key, opts[:key]}
 
       true ->
-        key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
-        {:key, {:ECPrivateKey, key}}
+        {:key, {:ECPrivateKey, Nerves.Runtime.KV.get(@key) |> key_pem_to_der()}}
+    end
+  end
+
+  defp key_pem_to_der(nil), do: <<>>
+
+  defp key_pem_to_der(pem) do
+    case X509.PrivateKey.from_pem(pem) do
+      {:error, :not_found} -> <<>>
+      {:ok, decoded} -> X509.PrivateKey.to_der(decoded)
     end
   end
 end
