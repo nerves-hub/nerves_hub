@@ -10,11 +10,12 @@ defmodule Example.Application do
   def start(_type, _args) do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-
-    NervesHub.connect()
+    children = [
+      NervesHub.Supervisor
+    ] ++ children(@target)
 
     opts = [strategy: :one_for_one, name: Example.Supervisor]
-    Supervisor.start_link(children(@target), opts)
+    Supervisor.start_link(children, opts)
   end
 
   # List all child processes to be supervised
