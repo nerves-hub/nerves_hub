@@ -47,7 +47,7 @@ defmodule NervesHub.HTTPClient do
   defp ssl_options() do
     cert = Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()
     key = Nerves.Runtime.KV.get(@key) |> Certificate.pem_to_der()
-    sni = Application.get_env(:nerves_hub, :device_api_host)
+    sni = Application.get_env(:nerves_hub, :device_api_sni)
 
     [
       cacerts: Certificate.ca_certs(),
