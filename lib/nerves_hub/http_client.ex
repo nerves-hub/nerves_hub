@@ -64,10 +64,15 @@ defmodule NervesHub.HTTPClient do
   end
 
   defp headers do
-    [
-      {"Content-Type", "application/json"},
-      {"X-NervesHub-Dn", Nerves.Runtime.KV.get("nerves_serial_number")},
-      {"X-NervesHub-Uuid", Nerves.Runtime.KV.get_active("nerves_fw_uuid")}
-    ]
+    headers = [{"Content-Type", "application/json"}]
+
+    Nerves.Runtime.KV.get_all_active()
+    |> Enum.reduce(headers, fn
+      {"nerves_fw_" <> key, value}, headers ->
+        [{"X-NervesHub-" <> key, value} | headers]
+
+      _, headers ->
+        headers
+    end)
   end
 end
