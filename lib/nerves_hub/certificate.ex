@@ -10,7 +10,7 @@ defmodule NervesHub.Certificate do
 
   ca_cert_path =
     System.get_env("NERVES_HUB_CA_CERTS") || Application.get_env(:nerves_hub, :ca_certs) ||
-      Application.app_dir(:nerves_hub, "priv", "ca_certs")
+      Application.app_dir(:nerves_hub, ["priv", "ca_certs"])
 
   ca_certs =
     ca_cert_path
