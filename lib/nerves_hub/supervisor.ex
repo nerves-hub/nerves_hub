@@ -1,7 +1,7 @@
 defmodule NervesHub.Supervisor do
   use Supervisor
 
-  alias NervesHub.{Socket, FirmwareChannel}
+  alias NervesHub.FirmwareChannel
 
   @moduledoc """
   Supervisor for maintaining a channel connection to a NervesHub server
@@ -32,27 +32,19 @@ defmodule NervesHub.Supervisor do
   """
   @spec start_link(keyword()) :: Supervisor.on_start()
   def start_link(socket_opts) do
-    case Supervisor.start_link(__MODULE__, socket_opts, name: __MODULE__) do
-      {:ok, pid} ->
-        NervesHub.connect()
-        {:ok, pid}
-
-      error ->
-        error
-    end
+    Supervisor.start_link(__MODULE__, socket_opts, name: __MODULE__)
   end
 
   @impl true
   def init(socket_opts) do
     socket_opts =
-      Application.get_env(:nerves_hub, Socket, [])
+      Application.get_env(:nerves_hub, :socket, [])
       |> Keyword.merge(socket_opts)
-      |> Socket.opts()
+      |> NervesHub.Socket.opts()
 
     children = [
-      {Socket, socket_opts},
-      {FirmwareChannel,
-       {[socket: Socket, topic: FirmwareChannel.topic()], [name: FirmwareChannel]}}
+      {PhoenixClient.Socket, {socket_opts, [name: PhoenixClient.Socket]}},
+      {FirmwareChannel, [socket: PhoenixClient.Socket]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

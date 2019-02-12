@@ -1,6 +1,7 @@
 defmodule NervesHub.FirmwareChannelTest do
   use ExUnit.Case, async: true
   alias NervesHub.{ClientMock, FirmwareChannel}
+  alias PhoenixClient.Message
 
   doctest FirmwareChannel
 
@@ -14,65 +15,52 @@ defmodule NervesHub.FirmwareChannelTest do
   describe "handle_in/3 - update" do
     test "no firmware url" do
       Mox.expect(ClientMock, :update_available, 0, fn _ -> :ok end)
-      assert FirmwareChannel.handle_in("update", %{}, %{}) == {:noreply, %{}}
+      assert FirmwareChannel.handle_info(%Message{event: "update"}, %{}) == {:noreply, %{}}
     end
 
     test "firmware url - apply" do
       Mox.expect(ClientMock, :update_available, fn _ -> :apply end)
-      assert FirmwareChannel.handle_in("update", %{"firmware_url" => ""}, %{}) == {:noreply, %{}}
+
+      assert FirmwareChannel.handle_info(
+               %Message{event: "update", payload: %{"firmware_url" => ""}},
+               %{}
+             ) == {:noreply, %{}}
     end
 
     test "firmware url - ignore" do
       Mox.expect(ClientMock, :update_available, fn _ -> :ignore end)
-      assert FirmwareChannel.handle_in("update", %{"firmware_url" => ""}, %{}) == {:noreply, %{}}
+
+      assert FirmwareChannel.handle_info(
+               %Message{event: "update", payload: %{"firmware_url" => ""}},
+               %{}
+             ) == {:noreply, %{}}
     end
 
     test "firmware url - reschedule" do
       data = %{"firmware_url" => ""}
       Mox.expect(ClientMock, :update_available, fn _ -> {:reschedule, 999} end)
-      assert {:noreply, state} = FirmwareChannel.handle_in("update", data, %{})
+
+      assert {:noreply, state} =
+               FirmwareChannel.handle_info(%Message{event: "update", payload: data}, %{})
+
       Mox.expect(ClientMock, :update_available, fn _ -> {:reschedule, 1} end)
-      assert {:noreply, %{} = state} = FirmwareChannel.handle_in("update", data, state)
+
+      assert {:noreply, %{} = state} =
+               FirmwareChannel.handle_info(%Message{event: "update", payload: data}, state)
+
       assert_receive {:update_reschedule, ^data}
-    end
-  end
-
-  describe "handle_reply" do
-    test "ok join" do
-      Mox.expect(ClientMock, :update_available, 0, fn :data -> :ignore end)
-
-      assert FirmwareChannel.handle_reply(
-               {:ok, :join, %{"response" => %{}, "status" => "ok"}, :any},
-               %{}
-             ) == {:noreply, %{}}
-    end
-
-    test "ok join - calls update_available" do
-      Mox.expect(ClientMock, :update_available, fn :data -> :ignore end)
-
-      assert FirmwareChannel.handle_reply(
-               {:ok, :join, %{"response" => %{"firmware_url" => ""}, "status" => "ok"}, :any},
-               %{}
-             ) == {:noreply, %{}}
-    end
-
-    test "error join" do
-      Mox.expect(ClientMock, :handle_error, fn :reason -> :ok end)
-
-      assert FirmwareChannel.handle_reply(
-               {:error, :join, %{"response" => %{"reason" => :reason}, "status" => "error"}},
-               :state
-             ) == {:stop, :reason, :state}
     end
 
     test "catch all" do
-      assert FirmwareChannel.handle_reply(:any, :state) == {:noreply, :state}
+      assert FirmwareChannel.handle_info(:any, :state) == {:noreply, :state}
     end
   end
 
   test "handle_close" do
-    assert FirmwareChannel.handle_close(:payload, :state) == {:noreply, :state}
-    assert_receive :rejoin
+    assert FirmwareChannel.handle_info(%Message{event: "phx_close", payload: %{}}, :state) ==
+             {:noreply, :state}
+
+    assert_receive :join
   end
 
   describe "handle_info" do

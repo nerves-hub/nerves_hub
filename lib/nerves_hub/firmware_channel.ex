@@ -1,47 +1,60 @@
 defmodule NervesHub.FirmwareChannel do
-  use PhoenixChannelClient
+  use GenServer
   require Logger
 
   alias NervesHub.{Client, HTTPFwupStream}
+  alias PhoenixClient.{Channel, Message}
 
   @rejoin_after Application.get_env(:nerves_hub, :rejoin_after, 5_000)
 
   @client Application.get_env(:nerves_hub, :client, Client.Default)
 
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts)
+  end
+
   def topic do
     "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")
   end
 
-  def handle_in("update", params, state) do
+  def join_params do
+    %{}
+  end
+
+  def init(opts) do
+    socket = opts[:socket]
+    send(self(), :join)
+
+    {:ok,
+     %{
+       socket: socket,
+       channel: nil,
+       params: join_params()
+     }}
+  end
+
+  def handle_info(%Message{event: "update", payload: params}, state) do
     {:noreply, maybe_update_firmware(params, state)}
   end
 
-  def handle_in(_event, _payload, state) do
-    {:noreply, state}
-  end
-
-  def handle_reply(
-        {:ok, :join, %{"response" => response, "status" => "ok"}, _},
-        state
-      ) do
-    {:noreply, maybe_update_firmware(response, state)}
-  end
-
-  def handle_reply(
-        {:error, :join, %{"response" => %{"reason" => reason}, "status" => "error"}},
-        state
-      ) do
+  def handle_info(%Message{event: event, payload: payload}, state)
+      when event in ["phx_error", "phx_close"] do
+    reason = Map.get(payload, :reason, "unknown")
     _ = Client.handle_error(@client, reason)
-    {:stop, reason, state}
-  end
-
-  def handle_reply(_payload, state) do
+    Process.send_after(self(), :join, @rejoin_after)
     {:noreply, state}
   end
 
-  def handle_close(_payload, state) do
-    Process.send_after(self(), :rejoin, @rejoin_after)
-    {:noreply, state}
+  def handle_info(:join, %{socket: socket, params: params} = state) do
+    case Channel.join(socket, topic(), params) do
+      {:ok, reply, channel} ->
+        state = %{state | channel: channel}
+        {:noreply, maybe_update_firmware(reply, state)}
+
+      _error ->
+        Process.send_after(self(), :join, @rejoin_after)
+        {:noreply, state}
+    end
   end
 
   def handle_info({:fwup, {:ok, 0, message}}, state) do
@@ -74,6 +87,10 @@ defmodule NervesHub.FirmwareChannel do
     Logger.error("HTTP Stream Error: #{inspect(reason)}")
     _ = Client.handle_error(@client, reason)
     {:stop, reason, state}
+  end
+
+  def handle_info(_message, state) do
+    {:noreply, state}
   end
 
   defp maybe_update_firmware(%{"firmware_url" => url} = data, state) do
