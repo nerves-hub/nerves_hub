@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.4.0
+
+This release has backwards incompatible changes so please read carefully.
+
+The configuration key for firmware signing keys has changed from `:public_keys`
+to `:fwup_public_keys`.
+
+If you are not using nerves-hub.org for your NervesHub server, the configuration
+keys for specifying the device endpoint for the server have changed. Look for
+`:device_api_host` and `:device_api_port` in the documentation and example for
+setting these.
+
+* Enhancements
+  * All firmware metadata is now passed up to the NervesHub. This will make it
+    possible for the server to make decisions on firmware that has been loaded
+    outside of NervesHub or old firmware that has been unloaded from NervesHub.
+  * Code cleanup and refactoring throughout. More passes are planned.
+
 ## v0.3.0
 
 * Enhancements
