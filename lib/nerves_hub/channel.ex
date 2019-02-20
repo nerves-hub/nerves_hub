@@ -1,4 +1,4 @@
-defmodule NervesHub.FirmwareChannel do
+defmodule NervesHub.Channel do
   use GenServer
   require Logger
 
@@ -13,21 +13,20 @@ defmodule NervesHub.FirmwareChannel do
     GenServer.start_link(__MODULE__, opts)
   end
 
-  def topic do
-    "firmware:" <> Nerves.Runtime.KV.get_active("nerves_fw_uuid")
-  end
-
   def join_params do
     Nerves.Runtime.KV.get_all_active()
   end
 
   def init(opts) do
+    topic = opts[:topic]
     socket = opts[:socket]
+    join_params = opts[:join_params]
     send(self(), :join)
 
     {:ok,
      %{
        socket: socket,
+       topic: topic,
        channel: nil,
        params: join_params()
      }}
@@ -45,8 +44,8 @@ defmodule NervesHub.FirmwareChannel do
     {:noreply, state}
   end
 
-  def handle_info(:join, %{socket: socket, params: params} = state) do
-    case Channel.join(socket, topic(), params) do
+  def handle_info(:join, %{socket: socket, topic: topic, params: params} = state) do
+    case Channel.join(socket, topic, params) do
       {:ok, reply, channel} ->
         state = %{state | channel: channel}
         {:noreply, maybe_update_firmware(reply, state)}
