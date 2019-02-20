@@ -1,7 +1,8 @@
 defmodule NervesHub.Supervisor do
   use Supervisor
 
-  alias NervesHub.FirmwareChannel
+  alias NervesHub.Channel
+  alias PhoenixClient.Socket
 
   @moduledoc """
   Supervisor for maintaining a channel connection to a NervesHub server
@@ -43,8 +44,8 @@ defmodule NervesHub.Supervisor do
       |> NervesHub.Socket.opts()
 
     children = [
-      {PhoenixClient.Socket, {socket_opts, [name: PhoenixClient.Socket]}},
-      {FirmwareChannel, [socket: PhoenixClient.Socket]}
+      {Socket, {socket_opts, [name: Socket]}},
+      {Channel, [socket: Socket, topic: "device"]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
