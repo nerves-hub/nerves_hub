@@ -38,9 +38,9 @@ config :nerves_hub,
 
 ## Uncomment for local NervesHubWeb development
 
-# config :nerves_hub_core,
-#   api_host: "0.0.0.0",
-#   api_port: 4002
+config :nerves_hub_user_api,
+  host: "0.0.0.0",
+  port: 4002
 
 # config :nerves_hub_cli,
 #   home: Path.expand("../.nerves-hub"),
@@ -69,7 +69,7 @@ config :nerves_hub,
 # of this file so it overrides the configuration defined above.
 # Uncomment to use target specific configurations
 
-# import_config "#{Mix.Project.config[:target]}.exs"
+# import_config "#{Mix.target()}.exs"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

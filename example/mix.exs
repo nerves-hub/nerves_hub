@@ -1,18 +1,14 @@
 defmodule Example.MixProject do
   use Mix.Project
 
-  @target System.get_env("MIX_TARGET") || "host"
+  @all_targets [:rpi, :rpi2, :rpi3, :rpi3a, :rpi0, :bbb, :x86_64]
 
   def project do
     [
       app: :example,
       version: "0.1.0",
-      elixir: "~> 1.6",
-      target: @target,
+      elixir: "~> 1.8",
       archives: [nerves_bootstrap: "~> 1.0"],
-      deps_path: "deps/#{@target}",
-      build_path: "_build/#{@target}",
-      lockfile: "mix.lock.#{@target}",
       start_permanent: Mix.env() == :prod,
       aliases: [loadconfig: [&bootstrap/1]],
       deps: deps()
@@ -37,29 +33,21 @@ defmodule Example.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nerves, "~> 1.3", runtime: false},
+      {:nerves, "~> 1.4", runtime: false},
       {:shoehorn, "~> 0.4"},
-      {:nerves_hub, path: "../"}
-    ] ++ deps(@target)
-  end
-
-  # Specify target specific dependencies
-  defp deps("host"), do: []
-
-  defp deps(target) do
-    [
+      {:nerves_hub, path: "../"},
       {:nerves_runtime, "~> 0.8"},
-      {:nerves_init_gadget, "~> 0.5"},
-      {:nerves_time, "~> 0.2"}
-    ] ++ system(target)
-  end
 
-  defp system("rpi"), do: [{:nerves_system_rpi, "~> 1.5", runtime: false}]
-  defp system("rpi0"), do: [{:nerves_system_rpi0, "~> 1.5", runtime: false}]
-  defp system("rpi2"), do: [{:nerves_system_rpi2, "~> 1.5", runtime: false}]
-  defp system("rpi3"), do: [{:nerves_system_rpi3, "~> 1.5", runtime: false}]
-  defp system("bbb"), do: [{:nerves_system_bbb, "~> 2.0", runtime: false}]
-  defp system("ev3"), do: [{:nerves_system_ev3, "~> 1.5", runtime: false}]
-  defp system("x86_64"), do: [{:nerves_system_x86_64, "~> 1.5", runtime: false}]
-  defp system(target), do: Mix.raise("Unknown MIX_TARGET: #{target}")
+      {:nerves_init_gadget, "~> 0.5", targets: @all_targets},
+      {:nerves_time, "~> 0.2", targets: @all_targets},
+
+      {:nerves_system_rpi, "~> 1.6", targets: :rpi, runtime: false},
+      {:nerves_system_rpi0, "~> 1.6", targets: :rpi0, runtime: false},
+      {:nerves_system_rpi2, "~> 1.6", targets: :rpi2, runtime: false},
+      {:nerves_system_rpi3, "~> 1.6", targets: :rpi3, runtime: false},
+      {:nerves_system_rpi3a, "~> 1.6", targets: :rpi3a, runtime: false},
+      {:nerves_system_bbb, "~> 2.1", targets: :bbb, runtime: false},
+      {:nerves_system_x86_64, "~> 1.6", targets: :x86_64, runtime: false},
+    ]
+  end
 end
