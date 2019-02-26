@@ -13,10 +13,6 @@ defmodule NervesHub.Channel do
     GenServer.start_link(__MODULE__, opts)
   end
 
-  def join_params do
-    Nerves.Runtime.KV.get_all_active()
-  end
-
   def init(opts) do
     topic = opts[:topic]
     socket = opts[:socket]
@@ -28,7 +24,7 @@ defmodule NervesHub.Channel do
        socket: socket,
        topic: topic,
        channel: nil,
-       params: join_params()
+       params: join_params
      }}
   end
 
