@@ -10,9 +10,9 @@ config :nerves_hub_cli,
   ca_certs: Path.expand("../test/fixtures/ca_certs", __DIR__)
 
 # API HTTP connection.
-config :nerves_hub_core,
-  api_host: "0.0.0.0",
-  api_port: 4002
+config :nerves_hub_user_api,
+  host: "0.0.0.0",
+  port: 4002
 
 # Device HTTP connection.
 config :nerves_hub,
