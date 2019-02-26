@@ -3,6 +3,24 @@ use Mix.Config
 config :mix_test_watch,
   clear: true
 
+config :nerves_hub_cli,
+  home_dir: Path.expand("nerves-hub"),
+  ca_certs: Path.expand("../test/fixtures/ca_certs", __DIR__)
+
+# Shared Configuration.
+config :nerves_hub,
+  ca_certs: Path.expand("../test/fixtures/ca_certs", __DIR__)
+
+# API HTTP connection.
+config :nerves_hub_user_api,
+  host: "0.0.0.0",
+  port: 4002
+
+# Device HTTP connection.
+config :nerves_hub,
+  device_api_host: "0.0.0.0",
+  device_api_port: 4001
+
 # nerves_runtime needs to disable
 # and mock out some parts.
 
@@ -13,6 +31,9 @@ cert =
 key =
   if File.exists?("./nerves-hub/test-key.pem"),
     do: File.read!("./nerves-hub/test-key.pem")
+
+config :nerves_runtime, :kernel, autoload_modules: false
+config :nerves_runtime, target: "host"
 
 config :nerves_runtime, Nerves.Runtime.KV.Mock, %{
   "nerves_fw_active" => "a",
