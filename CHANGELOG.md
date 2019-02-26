@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.0
+
+* Enhancements
+  * nerves_hub_cli: Bump to v0.7.0
+  * The Phoenix Channel connection no longer uses the topic `firmware:firmware_uuid`
+    and instead connects to the topic `device`.
+
 ## v0.4.0
 
 This release has backwards incompatible changes so please read carefully.
