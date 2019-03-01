@@ -46,8 +46,8 @@ defmodule NervesHub.Supervisor do
     join_params = Nerves.Runtime.KV.get_all_active()
 
     children = [
-      {Socket, {socket_opts, [name: Socket]}},
-      {Channel, [socket: Socket, topic: "device", join_params: join_params]}
+      {Socket, {socket_opts, [name: NervesHub.Socket]}},
+      {Channel, [socket: NervesHub.Socket, topic: "device", join_params: join_params]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
