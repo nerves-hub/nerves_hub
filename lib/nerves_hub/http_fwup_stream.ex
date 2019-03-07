@@ -72,7 +72,7 @@ defmodule NervesHub.HTTPFwupStream do
        callback: cb,
        caller: nil,
        number_of_redirects: 0,
-       timeout: 15000,
+       timeout: 60_000,
        fwup: fwup
      }}
   end
