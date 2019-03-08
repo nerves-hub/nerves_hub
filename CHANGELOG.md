@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.1
+
+* Bug fixes
+  * Increased download hang timeout to deal with slow networks and <1 minute
+    long hiccups
+  * Fixed naming collision with a named process
+
 ## v0.5.0
 
 * Enhancements
