@@ -48,12 +48,13 @@ defmodule NervesHub.HTTPClient do
     cert = Nerves.Runtime.KV.get(@cert) |> Certificate.pem_to_der()
 
     key =
-      @key
-      |> Nerves.Runtime.KV.get()
-      |> X509.PrivateKey.from_pem()
-      |> case do
-        {:error, :not_found} -> <<>>
-        {:ok, decoded} -> X509.PrivateKey.to_der(decoded)
+      with key when not is_nil(key) <- Nerves.Runtime.KV.get(@key) do
+        case X509.PrivateKey.from_pem(key) do
+          {:error, :not_found} -> <<>>
+          {:ok, decoded} -> X509.PrivateKey.to_der(decoded)
+        end
+      else
+        nil -> <<>>
       end
 
     sni = Application.get_env(:nerves_hub, :device_api_sni)
