@@ -28,6 +28,14 @@ defmodule NervesHub.Channel do
      }}
   end
 
+  def handle_info(%Message{event: "reboot"}, state) do
+    Logger.warn("Reboot Request from NervesHub")
+    Channel.push_async(state.channel, "rebooting", %{})
+    # TODO: Maybe allow delayed reboot
+    Nerves.Runtime.reboot()
+    {:noreply, state}
+  end
+
   def handle_info(%Message{event: "update", payload: params}, state) do
     {:noreply, maybe_update_firmware(params, state)}
   end
