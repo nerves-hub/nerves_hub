@@ -1,8 +1,5 @@
 use Mix.Config
 
-config :mix_test_watch,
-  clear: true
-
 config :nerves_hub_cli,
   home_dir: Path.expand("nerves-hub"),
   ca_certs: Path.expand("../test/fixtures/ca_certs", __DIR__)

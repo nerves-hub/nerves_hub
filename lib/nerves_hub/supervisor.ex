@@ -1,7 +1,7 @@
 defmodule NervesHub.Supervisor do
   use Supervisor
 
-  alias NervesHub.Channel
+  alias NervesHub.{Channel, ConsoleChannel}
   alias PhoenixClient.Socket
 
   @moduledoc """
@@ -45,11 +45,21 @@ defmodule NervesHub.Supervisor do
 
     join_params = Nerves.Runtime.KV.get_all_active()
 
-    children = [
-      {Socket, {socket_opts, [name: NervesHub.Socket]}},
-      {Channel, [socket: NervesHub.Socket, topic: "device", join_params: join_params]}
-    ]
+    children =
+      [
+        {Socket, {socket_opts, [name: NervesHub.Socket]}},
+        {Channel, [socket: NervesHub.Socket, topic: "device", join_params: join_params]}
+      ]
+      |> add_console_child(join_params)
 
     Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  defp add_console_child(children, params) do
+    if Application.get_env(:nerves_hub, :remote_iex, false) do
+      [{ConsoleChannel, [socket: NervesHub.Socket, params: params]} | children]
+    else
+      children
+    end
   end
 end
