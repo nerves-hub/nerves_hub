@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.0
+
+* New features
+  * Support remote reboot request from NervesHub
+
+* Bug fixes
+  * Fix decoding of private key from KV
+
 ## v0.5.1
 
 * Bug fixes
