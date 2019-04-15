@@ -9,7 +9,7 @@ defmodule NervesHub.MixProject do
       deps: deps(),
       description: description(),
       docs: [main: "readme", extras: ["README.md"]],
-      elixir: "~> 1.6",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       preferred_cli_env: [
