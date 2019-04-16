@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.0
+
+* New features
+  * Support remote IEx access from authorized NervesHub users, but only if
+    enabled. To enable, add `config :nerves_hub, remote_iex: true` to your
+    `config.exs`
+
 ## v0.6.0
 
 * New features
