@@ -395,7 +395,7 @@ config :nerves_hub, client: MyApp.NervesHubClient
 ### Enabling remote IEx access
 
 It's possible to remotely log into your device via the NervesHub web interface. This
-feature is disabled by default. To enable, adding the following to your `config.exs`:
+feature is disabled by default. To enable, add the following to your `config.exs`:
 
 ```elixir
 config :nerves_hub, remote_iex: true
