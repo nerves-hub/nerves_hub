@@ -145,6 +145,12 @@ defmodule NervesHub.HTTPFwupStream do
   end
 
   @impl true
+  def handle_info({:http, {_ref, {:error, error}}}, state) do
+    Logger.error("FWUP Error: #{inspect(error)}")
+    {:stop, {:error, {:http_error, error}}, state}
+  end
+
+  @impl true
   def handle_info(:timeout, s) do
     Logger.error("Error: timeout")
     {:stop, {:error, {:http_error, :timeout}}, s}
@@ -170,7 +176,7 @@ defmodule NervesHub.HTTPFwupStream do
       {'Content-Type', 'application/octet-stream'}
     ]
 
-    http_opts = [timeout: :infinity, autoredirect: false]
+    http_opts = [connect_timeout: 30_000, timeout: :infinity, autoredirect: false]
     opts = [stream: :self, receiver: self(), sync: false]
 
     :httpc.request(
