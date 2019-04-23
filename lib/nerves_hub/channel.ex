@@ -73,7 +73,6 @@ defmodule NervesHub.Channel do
   end
 
   def handle_info({:http_error, error}, state) do
-    Logger.error("HTTP Stream Error: #{inspect(error)}")
     _ = Client.handle_error(@client, error)
     {:noreply, state}
   end

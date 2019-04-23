@@ -146,7 +146,7 @@ defmodule NervesHub.HTTPFwupStream do
 
   @impl true
   def handle_info({:http, {_ref, {:error, error}}}, state) do
-    Logger.error("FWUP Error: #{inspect(error)}")
+    Logger.error("HTTP Stream Error: #{inspect(error)}")
     {:stop, {:error, {:http_error, error}}, state}
   end
 
