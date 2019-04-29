@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.1
+
+* Bug fixes
+  * Handle firmware download connection timeout to fail more quickly when
+    connections fail
+
 ## v0.7.0
 
 * New features
