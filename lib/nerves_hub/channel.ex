@@ -68,6 +68,14 @@ defmodule NervesHub.Channel do
   end
 
   def handle_info({:fwup, message}, state) do
+    case message do
+      {:progress, percent} ->
+        Channel.push_async(state.channel, "fwup_progress", %{value: percent})
+
+      _ ->
+        :ok
+    end
+
     _ = Client.handle_fwup_message(@client, message)
     {:noreply, state}
   end
