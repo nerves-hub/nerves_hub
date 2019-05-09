@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.2
+
+* Enhancements
+  * Report firmware update progress so it can be monitored on NervesHub.
+
 ## v0.7.1
 
 * Bug fixes
