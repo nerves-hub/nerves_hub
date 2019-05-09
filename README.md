@@ -403,3 +403,23 @@ config :nerves_hub, remote_iex: true
 
 You may also need additional permissions on NervesHub to see the device and to use the
 remote IEx feature.
+
+## Debugging errors
+
+### TLS client errors
+
+If you see the following in your logs:
+
+```text
+14:26:06.926 [info]  ['TLS', 32, 'client', 58, 32, 73, 110, 32, 115, 116, 97, 116, 101, 32, 'cipher', 32, 'received SERVER ALERT: Fatal - Unknown CA', 10]
+```
+
+This probably indicates that the signing certificate hasn't been uploaded to
+nerves-hub.org so the device can't be authenticated. Double check that you ran:
+
+```sh
+mix nerves_hub.ca_certificate register my-signer.cert
+```
+
+Another possibility is that the device wasn't provisioned with the certificate
+that's on nerves-hub.org.
