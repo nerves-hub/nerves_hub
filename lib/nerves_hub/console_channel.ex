@@ -23,7 +23,7 @@ defmodule NervesHub.ConsoleChannel do
     to these events (see below)
   * `init_attempt` - Pushed asynchronously after attempting to init an IEx Server.
   Payload has a `success` key with a boolean value to specify whether the server
-  process was started successfully or not 
+  process was started successfully or not
 
   The following events are supported _from_ the socket:
 
@@ -32,8 +32,8 @@ defmodule NervesHub.ConsoleChannel do
   This must be called before sending I/O back and forth. Only one IEx Server is
   initialized for this channel. If IEx Server has already been initialized and
   is in a good state, then calling `init` will continue to use the linked session
-  and have no effect. 
-  * `io_reply` - Send the reply characters to the IO. Requires specific keys in payload   
+  and have no effect.
+  * `io_reply` - Send the reply characters to the IO. Requires specific keys in payload
     * `kind` - event that you're replying to. Either `get_line` or `put_chars`
     * `data` - characters to be put into the IO. `put_chars` requires this to be `ok` or `error`
   * `phx_close` or `phx_error` - This will cause the channel to attempt rejoining
@@ -174,10 +174,23 @@ defmodule NervesHub.ConsoleChannel do
     state
   end
 
-  # All other requests push IO Request over the socket. 
+  # All other requests push IO Request over the socket.
   defp io_request(from, reply_as, {:get_line, encoding, data} = req, state) do
     Channel.push_async(state.channel, "get_line", %{encoding: encoding, data: data})
     %{state | request: {from, reply_as, req}}
+  end
+
+  defp io_request(from, reply_as, {:put_chars, encoding, module, function, args}, state) do
+    # Judicious try block so we can return back the error tuple
+    # as defined in http://erlang.org/doc/apps/stdlib/io_protocol.html#output-requests
+    try do
+      data = apply(module, function, args)
+      io_request(from, reply_as, {:put_chars, encoding, data}, state)
+    catch
+      thrown_value ->
+        Client.handle_error(@client, thrown_value)
+        io_reply(from, reply_as, {:error, thrown_value})
+    end
   end
 
   defp io_request(from, reply_as, {:put_chars, encoding, data} = req, state) do
