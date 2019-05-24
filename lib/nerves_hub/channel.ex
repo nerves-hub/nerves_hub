@@ -43,6 +43,7 @@ defmodule NervesHub.Channel do
   def handle_info(%Message{event: event, payload: payload}, state)
       when event in ["phx_error", "phx_close"] do
     reason = Map.get(payload, :reason, "unknown")
+    NervesHub.Connection.disconnected()
     _ = Client.handle_error(@client, reason)
     Process.send_after(self(), :join, @rejoin_after)
     {:noreply, state}
@@ -51,10 +52,12 @@ defmodule NervesHub.Channel do
   def handle_info(:join, %{socket: socket, topic: topic, params: params} = state) do
     case Channel.join(socket, topic, params) do
       {:ok, reply, channel} ->
+        NervesHub.Connection.connected()
         state = %{state | channel: channel}
         {:noreply, maybe_update_firmware(reply, state)}
 
       _error ->
+        NervesHub.Connection.disconnected()
         Process.send_after(self(), :join, @rejoin_after)
         {:noreply, state}
     end
@@ -102,6 +105,8 @@ defmodule NervesHub.Channel do
   def handle_info(_message, state) do
     {:noreply, state}
   end
+
+  def terminate(_reason, _state), do: NervesHub.Connection.disconnected()
 
   defp maybe_update_firmware(%{"firmware_url" => url} = data, state) do
     # Cancel an existing timer if it exists.
