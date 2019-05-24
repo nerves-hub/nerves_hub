@@ -10,20 +10,20 @@ defmodule NervesHub.HTTPClientTest do
     url = HTTPClient.url("/device/me")
 
     Mox.expect(HTTPClient.Mock, :request, fn :get, ^url, _, _, _ ->
-      :response
+      {:ok, :response}
     end)
 
-    assert HTTPClient.me() == :response
+    assert HTTPClient.me() == {:ok, :response}
   end
 
   test "update/0" do
     url = HTTPClient.url("/device/update")
 
     Mox.expect(HTTPClient.Mock, :request, fn :get, ^url, _, _, _ ->
-      :response
+      {:ok, :response}
     end)
 
-    assert HTTPClient.update() == :response
+    assert HTTPClient.update() == {:ok, :response}
   end
 
   describe "request/3" do
@@ -32,10 +32,10 @@ defmodule NervesHub.HTTPClientTest do
       url = "#{HTTPClient.url("/path")}?#{URI.encode_query(params)}"
 
       Mox.expect(HTTPClient.Mock, :request, fn :get, ^url, _, _, _ ->
-        :response
+        {:ok, :response}
       end)
 
-      assert HTTPClient.request(:get, "/path", params) == :response
+      assert HTTPClient.request(:get, "/path", params) == {:ok, :response}
     end
 
     test "non :get with params" do
@@ -44,20 +44,20 @@ defmodule NervesHub.HTTPClientTest do
       body = Jason.encode!(params)
 
       Mox.expect(HTTPClient.Mock, :request, fn :put, ^url, _, ^body, _ ->
-        :response
+        {:ok, :response}
       end)
 
-      assert HTTPClient.request(:put, "/path", params) == :response
+      assert HTTPClient.request(:put, "/path", params) == {:ok, :response}
     end
 
     test "no params" do
       url = HTTPClient.url("/path")
 
       Mox.expect(HTTPClient.Mock, :request, fn :get, ^url, _, [], _ ->
-        :response
+        {:ok, :response}
       end)
 
-      assert HTTPClient.request(:get, "/path", []) == :response
+      assert HTTPClient.request(:get, "/path", []) == {:ok, :response}
     end
   end
 

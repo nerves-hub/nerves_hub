@@ -47,6 +47,7 @@ defmodule NervesHub.Supervisor do
 
     children =
       [
+        NervesHub.Connection,
         {Socket, {socket_opts, [name: NervesHub.Socket]}},
         {Channel, [socket: NervesHub.Socket, topic: "device", join_params: join_params]}
       ]

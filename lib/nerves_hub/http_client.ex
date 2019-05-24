@@ -22,7 +22,9 @@ defmodule NervesHub.HTTPClient do
 
   def request(:get, path, params) when is_map(params) do
     url = url(path) <> "?" <> URI.encode_query(params)
+
     @client.request(:get, url, headers(), [], opts())
+    |> check_response()
   end
 
   def request(verb, path, params) when is_map(params) do
@@ -33,9 +35,27 @@ defmodule NervesHub.HTTPClient do
 
   def request(verb, path, body) do
     @client.request(verb, url(path), headers(), body, opts())
+    |> check_response()
   end
 
   def url(path), do: endpoint() <> path
+
+  defp check_response(response) do
+    case response do
+      {:ok, _} ->
+        NervesHub.Connection.connected()
+
+      {:error, _} ->
+        NervesHub.Connection.disconnected()
+
+      _ ->
+        raise(
+          "invalid HTTP response. request/5 must return a tuple with {:ok, resp} or {:error, resp}"
+        )
+    end
+
+    response
+  end
 
   defp opts() do
     [
