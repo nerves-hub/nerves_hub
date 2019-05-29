@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.3
+
+* Bug fixes
+  * Fix a NervesHub remote console issue due to missing `:io_request` handling
+
+* Enhancements
+  * Add support for querying the NervesHub connection state so that this is
+    easier to plug into Erlang's heart callback. This makes it possible to have
+    a device automatically reboot if it can't reach NervesHub for a long
+    time as a last ditch attempt at recovery. This has to be hooked up.
+
 ## v0.7.2
 
 * Enhancements
