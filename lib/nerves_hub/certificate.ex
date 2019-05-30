@@ -6,7 +6,7 @@ defmodule NervesHub.Certificate do
                  :fwup_public_keys,
                  Application.get_env(:nerves_hub, :public_keys, [])
                )
-               |> NervesHubCLI.resolve_fwup_public_keys()
+               |> NervesHubCLI.resolve_fwup_public_keys(Application.get_env(:nerves_hub, :org))
 
   ca_cert_path =
     System.get_env("NERVES_HUB_CA_CERTS") || Application.get_env(:nerves_hub, :ca_certs) ||
