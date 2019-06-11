@@ -204,7 +204,7 @@ defmodule NervesHub.ConsoleChannel do
         io_request(from, reply_as, req, %{state | retry_count: state.retry_count + 1})
     end
 
-    %{state | request: {from, reply_as, req}, retry_count: 0}
+    %{state | retry_count: 0}
   end
 
   defp io_request(_, _, req, state) do
