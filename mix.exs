@@ -17,9 +17,9 @@ defmodule NervesHub.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
-        ],
-        start_permanent: Mix.env() == :prod,
-        test_coverage: [tool: ExCoveralls],
+      ],
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
       deps: deps()
     ]
   end
