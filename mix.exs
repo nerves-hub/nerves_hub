@@ -61,7 +61,7 @@ defmodule NervesHub.MixProject do
       {:jason, "~> 1.0"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:mox, "~> 0.4", only: :test},
-      {:nerves_hub_cli, "~> 0.8.0", runtime: false},
+      {:nerves_hub_cli, "~> 0.9", runtime: false},
       {:nerves_runtime, "~> 0.8"},
       {:phoenix_client, "~> 0.7"},
       {:websocket_client, "~> 1.3"},
