@@ -6,7 +6,7 @@ defmodule NervesHub.MixProject do
   def project do
     [
       app: :nerves_hub,
-      deps: deps(),
+      version: "0.7.4",
       description: description(),
       docs: [main: "readme", extras: ["README.md"]],
       elixir: "~> 1.8",
@@ -17,10 +17,10 @@ defmodule NervesHub.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
-      ],
-      start_permanent: Mix.env() == :prod,
-      test_coverage: [tool: ExCoveralls],
-      version: "0.7.3"
+        ],
+        start_permanent: Mix.env() == :prod,
+        test_coverage: [tool: ExCoveralls],
+      deps: deps()
     ]
   end
 

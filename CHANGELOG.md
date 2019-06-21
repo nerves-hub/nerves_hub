@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.4
+
+* Bug fixes
+  * Add support for calling `RingLogger.attach` from remote iex.
+* Updated dependencies
+  * [nerves_hub_cli ~> 0.9](https://github.com/nerves-hub/nerves_hub_cli/releases/tag/v0.9.0)
+
 ## v0.7.3
 
 * Bug fixes
