@@ -28,6 +28,11 @@ defmodule NervesHub.HTTPFwupStream do
     GenServer.start_link(__MODULE__, [cb])
   end
 
+  @spec start(pid()) :: GenServer.on_start()
+  def start(cb) do
+    GenServer.start(__MODULE__, [cb])
+  end
+
   @doc """
   Stop the downloader
   """
