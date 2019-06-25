@@ -5,6 +5,24 @@ defmodule NervesHub do
 
   @client Application.get_env(:nerves_hub, :client, Client.Default)
 
+  @doc """
+  Checks if the device is connected to the NervesHub channel.
+  """
+  @spec connected? :: boolean()
+  def connected?() do
+    channel_state()
+    |> Map.get(:connected?, false)
+  end
+
+  @doc """
+  Current status of the device channel
+  """
+  @spec status :: NervesHub.Channel.State.status()
+  def status() do
+    channel_state()
+    |> Map.get(:status, :unknown)
+  end
+
   def update do
     case HTTPClient.update() do
       {:ok, %{"data" => %{"update_available" => true, "firmware_url" => url}}} ->
@@ -49,6 +67,14 @@ defmodule NervesHub do
       {:DOWN, _, :process, _, error} ->
         _ = Client.handle_error(@client, error)
         error
+    end
+  end
+
+  defp channel_state() do
+    GenServer.whereis(NervesHub.Channel)
+    |> case do
+      channel when is_pid(channel) -> GenServer.call(channel, :get_state)
+      _ -> %{}
     end
   end
 end
