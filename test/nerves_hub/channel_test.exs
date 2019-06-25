@@ -46,6 +46,18 @@ defmodule NervesHub.ChannelTest do
       assert_receive {:update_reschedule, ^data}
     end
 
+    test "firmware url - removes existing timer" do
+      data = %{"firmware_url" => ""}
+      Mox.expect(ClientMock, :update_available, fn _ -> :ignore end)
+
+      assert {:noreply, state} =
+               Channel.handle_info(%Message{event: "update", payload: data}, %{
+                 update_reschedule_timer: nil
+               })
+
+      refute Map.has_key?(state, :update_reschedule_timer)
+    end
+
     test "catch all" do
       assert Channel.handle_info(:any, :state) == {:noreply, :state}
     end
