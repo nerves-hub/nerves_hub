@@ -49,7 +49,7 @@ defmodule NervesHub.Supervisor do
       [
         NervesHub.Connection,
         {Socket, {socket_opts, [name: NervesHub.Socket]}},
-        {Channel, [socket: NervesHub.Socket, topic: "device", join_params: join_params]}
+        {Channel, [socket: NervesHub.Socket, topic: "device", params: join_params]}
       ]
       |> add_console_child(join_params)
 

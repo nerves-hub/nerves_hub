@@ -9,24 +9,42 @@ defmodule NervesHub.Channel do
 
   @client Application.get_env(:nerves_hub, :client, Client.Default)
 
+  defmodule State do
+    @type status ::
+            :idle
+            | :fwup_error
+            | :update_failed
+            | :update_rescheduled
+            | {:updating, integer()}
+            | :unknown
+
+    @type t :: %__MODULE__{
+            channel: pid(),
+            connected?: boolean(),
+            params: map(),
+            status: status(),
+            socket: pid(),
+            topic: String.t()
+          }
+
+    defstruct socket: nil,
+              topic: "device",
+              channel: nil,
+              params: %{},
+              status: :idle,
+              connected?: false
+  end
+
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts)
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
   def init(opts) do
-    topic = opts[:topic]
-    socket = opts[:socket]
-    join_params = opts[:join_params]
     send(self(), :join)
-
-    {:ok,
-     %{
-       socket: socket,
-       topic: topic,
-       channel: nil,
-       params: join_params
-     }}
+    {:ok, struct(State, opts)}
   end
+
+  def handle_call(:get_state, _from, state), do: {:reply, state, state}
 
   def handle_info(%Message{event: "reboot"}, state) do
     Logger.warn("Reboot Request from NervesHub")
@@ -46,20 +64,20 @@ defmodule NervesHub.Channel do
     NervesHub.Connection.disconnected()
     _ = Client.handle_error(@client, reason)
     Process.send_after(self(), :join, @rejoin_after)
-    {:noreply, state}
+    {:noreply, %{state | connected?: false}}
   end
 
   def handle_info(:join, %{socket: socket, topic: topic, params: params} = state) do
     case Channel.join(socket, topic, params) do
       {:ok, reply, channel} ->
         NervesHub.Connection.connected()
-        state = %{state | channel: channel}
+        state = %{state | channel: channel, connected?: true}
         {:noreply, maybe_update_firmware(reply, state)}
 
       _error ->
         NervesHub.Connection.disconnected()
         Process.send_after(self(), :join, @rejoin_after)
-        {:noreply, state}
+        {:noreply, %{state | connected?: false}}
     end
   end
 
@@ -71,13 +89,19 @@ defmodule NervesHub.Channel do
   end
 
   def handle_info({:fwup, message}, state) do
-    case message do
-      {:progress, percent} ->
-        Channel.push_async(state.channel, "fwup_progress", %{value: percent})
+    state =
+      case message do
+        {:progress, percent} ->
+          Channel.push_async(state.channel, "fwup_progress", %{value: percent})
+          %{state | status: {:updating, percent}}
 
-      _ ->
-        :ok
-    end
+        {:error, _, _message} ->
+          Channel.push_async(state.channel, "status_update", %{status: "fwup error"})
+          %{state | status: :fwup_error}
+
+        _ ->
+          state
+      end
 
     _ = Client.handle_fwup_message(@client, message)
     {:noreply, state}
@@ -85,7 +109,8 @@ defmodule NervesHub.Channel do
 
   def handle_info({:http_error, error}, state) do
     _ = Client.handle_error(@client, error)
-    {:noreply, state}
+    Channel.push_async(state.channel, "status_update", %{status: "update failed"})
+    {:noreply, %{state | status: :update_failed}}
   end
 
   def handle_info({:update_reschedule, response}, state) do
@@ -97,9 +122,10 @@ defmodule NervesHub.Channel do
   end
 
   def handle_info({:DOWN, _, :process, _, reason}, state) do
-    Logger.error("HTTP Stream Error: #{inspect(reason)}")
+    Logger.error("HTTP Streaming Error: #{inspect(reason)}")
     _ = Client.handle_error(@client, reason)
-    {:stop, reason, state}
+    Channel.push_async(state.channel, "status_update", %{status: "update failed"})
+    {:noreply, %{state | status: :update_failed}}
   end
 
   def handle_info(_message, state) do
@@ -122,7 +148,7 @@ defmodule NervesHub.Channel do
         {:ok, http} = HTTPFwupStream.start(self())
         spawn_monitor(HTTPFwupStream, :get, [http, url])
         Logger.info("[NervesHub] Downloading firmware: #{url}")
-        state
+        %{state | status: {:updating, 0}}
 
       :ignore ->
         state
@@ -131,6 +157,7 @@ defmodule NervesHub.Channel do
         timer = Process.send_after(self(), {:update_reschedule, data}, ms)
         Logger.info("[NervesHub] rescheduling firmware update in #{ms} milliseconds")
         Map.put(state, :update_reschedule_timer, timer)
+        %{state | status: :update_rescheduled}
     end
   end
 
