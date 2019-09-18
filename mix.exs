@@ -56,7 +56,7 @@ defmodule NervesHub.MixProject do
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.18", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
-      {:fwup, "~> 0.3.0"},
+      {:fwup, "~> 0.4.0"},
       {:hackney, "~> 1.10"},
       {:jason, "~> 1.0"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
