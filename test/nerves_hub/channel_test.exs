@@ -1,11 +1,20 @@
 defmodule NervesHub.ChannelTest do
-  use ExUnit.Case, async: true
+  # Fwup can only have one instance at a time.
+  # Set async false to account for this
+  use ExUnit.Case, async: false
   alias NervesHub.{ClientMock, Channel}
   alias PhoenixClient.Message
 
   doctest Channel
 
   setup do
+    # hack to stop Fwup streams if one was running
+    try do
+      if Process.whereis(Fwup.Stream), do: GenServer.stop(Fwup.Stream)
+    catch
+      _, _ -> :ok
+    end
+
     %{state: %Channel.State{}}
   end
 

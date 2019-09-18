@@ -156,7 +156,7 @@ defmodule NervesHub.Channel do
       {:reschedule, ms} ->
         timer = Process.send_after(self(), {:update_reschedule, data}, ms)
         Logger.info("[NervesHub] rescheduling firmware update in #{ms} milliseconds")
-        Map.put(state, :update_reschedule_timer, timer)
+        state = Map.put(state, :update_reschedule_timer, timer)
         %{state | status: :update_rescheduled}
     end
   end
