@@ -7,6 +7,22 @@ defmodule NervesHub.Connection do
   `:disconnected` and the second element is the value of `System.monotonic_time/1`
   at the time of setting the new state.
 
+  This agent is started as a child when using `NervesHub.Supervisor`. However,
+  if you are not using the supervisor (i.e. HTTP requests only), you must start
+  this agent separately:
+
+  ```elixir
+  def init(_) do
+    children =
+      [
+        NervesHub.Connection,
+        MyApp.OtherChild
+      ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+  ```
+
   In practice, this state is set anytime the device connection to
   [nerves-hub.org](https://www.nerves-hub.org) channel changes.
   Likewise, it is set after a HTTP request fails or succeeds. This makes it
@@ -65,7 +81,7 @@ defmodule NervesHub.Connection do
   config :nerves_hub, connection_timeout: 60
   ```
   """
-  @spec check() :: :ok | {:error, {:disconnected_too_long, integer()}}
+  @spec check() :: :ok | {:error, {:disconnected_too_long, integer()}} | {:error, :no_agent}
   def check() do
     timeout = Application.get_env(:nerves_hub, :connection_timeout, 900)
     now = current_time()
@@ -93,32 +109,45 @@ defmodule NervesHub.Connection do
   @doc """
   Sets the state to `{:connected, System.monotonic_time(:seconds)}`
   """
-  @spec connected() :: :ok
+  @spec connected() :: :ok | {:error, :no_agent}
   def connected() do
-    Agent.update(__MODULE__, fn _ -> {:connected, current_time()} end)
+    fun = fn _ -> {:connected, current_time()} end
+    apply_agent_fun(:update, fun)
   end
 
   @doc """
   Sets the state to `{:disconnected, System.monotonic_time(:seconds)}`
   """
-  @spec disconnected() :: :ok
+  @spec disconnected() :: :ok | {:error, :no_agent}
   def disconnected() do
     # If we are already in a disconnected state, then don't
     # overwrite the existing value so we can measure from
     # the first point of disconnect
-    Agent.update(__MODULE__, fn state ->
+    fun = fn state ->
       case state do
         {:disconnected, _time} = state -> state
         _ -> {:disconnected, current_time()}
       end
-    end)
+    end
+
+    apply_agent_fun(:update, fun)
   end
 
   @doc """
   Reads the state directly without modification.
   """
-  @spec read() :: {:connected, integer()} | {:disconnected, integer()}
-  def read(), do: Agent.get(__MODULE__, & &1)
+  @spec read() :: {:connected, integer()} | {:disconnected, integer()} | {:error, :no_agent}
+  def read(), do: apply_agent_fun(:get, & &1)
 
   defp current_time(), do: System.monotonic_time(:second)
+
+  defp apply_agent_fun(fun_name, fun) do
+    case Process.whereis(__MODULE__) do
+      agent when is_pid(agent) ->
+        apply(Agent, fun_name, [agent, fun])
+
+      _ ->
+        {:error, :no_agent}
+    end
+  end
 end
