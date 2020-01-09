@@ -42,7 +42,7 @@ mix deps.get
 
 Authenticate as the default user.
 
-email: nerveshub@nerves-hub.org
+username: nerveshub
 password: nerveshub
 
 ```bash
@@ -51,6 +51,13 @@ mix nerves_hub.user auth
 
 ```bash
 NERVES_HUB_NON_INTERACTIVE=y mix nerves_hub.device create --identifier test --description test --tag test
+mix nerves_hub.device cert create test
 mix deps.compile --force # this is to reload cert and key you just created
 iex -S mix # make your changes, test em out etc.
+```
+
+On the device You can start the supervisor
+
+```elixir
+NervesHub.Supervisor.start_link([])
 ```
